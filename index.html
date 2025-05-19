@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Simulador CODE-2 con Instrucciones</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            margin: 2em;
+        }
+
+        textarea {
+            width: 100%;
+            height: 150px;
+            font-family: monospace;
+        }
+
+        table,
+        td,
+        th {
+            border: 1px solid #ccc;
+            border-collapse: collapse;
+            padding: 5px;
+        }
+
+        td,
+        th {
+            text-align: center;
+        }
+
+        td:hover {
+            background-color: #eef;
+            cursor: pointer;
+        }
+
+        .layout {
+            display: flex;
+            gap: 2em;
+            margin-top: 1em;
+            align-items: flex-start;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>Simulador CODE-2 con Instrucciones</h1>
+
+    <textarea id="codigo" placeholder="Instrucciones generadas por la memoria se mostrarán aquí..."
+        readonly></textarea><br>
+
+    <button onclick="cargarPrograma()">Cargar Programa</button>
+    <button onclick="paso()">Siguiente Paso</button>
+    <button onclick="ejecutarPrograma()">Ejecutar</button>
+    <button onclick="reset()">Reset</button>
+
+    <div class="layout">
+        <div>
+            <h2>Registros</h2>
+            <table id="registros"></table>
+        </div>
+
+        <div>
+            <h2>Memoria CODE (64K)</h2>
+            <div style="margin: 1em 0;">
+                <button onclick="prevPagina()">⬅️</button>
+                <span id="memRange">...</span>
+                <button onclick="nextPagina()">➡️</button>
+            </div>
+            <table id="memoria"></table>
+        </div>
+
+        <div class="panel-control" style="display: flex; gap: 2em; margin-bottom: 1em; align-items: center;">
+            <div>
+                <h3>Control CODE-2</h3>
+                <table>
+                    <tr>
+                        <td><b>PC (Posición)</b></td>
+                        <td id="panel-pc">1</td>
+                    </tr>
+                    <tr>
+                        <td><b>IR (Valor)</b></td>
+                        <td id="panel-ir">0000</td>
+                    </tr>
+                    <tr>
+                        <td><b>Dirección/OP1</b></td>
+                        <td id="panel-op1">----</td>
+                    </tr>
+                    <tr>
+                        <td><b>Contenido/OP2</b></td>
+                        <td id="panel-op2">----</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const registros = Array(16).fill(0);
+        const memoria = Array(65536).fill(0);
+        let paginaMemoria = 0;
+        const tamBloque = 256;
+
+        let pc = 0;
+        const instruccionesVisibles = new Set();
+
+        function parseHexDefault(valorStr) {
+            return parseInt(valorStr, 16);
+        }
+
+        function cargarPrograma() {
+            pc = 0;
+            document.getElementById("codigo").value = "";
+            instruccionesVisibles.clear();
+            actualizarVista();
+        }
+
+        function paso() {
+            if (pc >= memoria.length) {
+                alert("✅ Programa finalizado.");
+                return;
+            }
+
+            const palabra = memoria[pc];
+            actualizarPanelControl(palabra);
+            const opcode = (palabra >> 12) & 0xF;
+            const r1 = (palabra >> 8) & 0xF;
+            const r2 = (palabra >> 4) & 0xF;
+            const r3 = palabra & 0xF;
+            const val8 = palabra & 0xFF;
+
+            switch (opcode) {
+                case 0x2: // LLI
+                    registros[r1] = val8 & 0x00FF;
+                    break;
+                case 0x3: // LHI
+                    registros[r1] = (val8 << 8) | (registros[r1] & 0x00FF);
+                    break;
+                case 0x6: // ADDS
+                    registros[r1] = (registros[r2] + registros[r3]) & 0xFFFF;
+                    break;
+                case 0x1: { // ST
+                    const addr = (registros[0xD] + val8) & 0xFFFF;
+                    memoria[addr] = registros[r1];
+                    break;
+                }
+                case 0x0: { // LD
+                    const addr = (registros[0xD] + val8) & 0xFFFF;
+                    registros[r1] = memoria[addr];
+                    break;
+                }
+                case 0xE:
+                case 0xF:
+                    alert("🔚 Instrucción de parada ejecutada.");
+                    return;
+            }
+
+            pc++;
+            actualizarVista();
+        }
+
+
+        function ejecutarPrograma() {
+            const maxPasos = 10; // límite de seguridad para evitar bucles infinitos
+            let pasos = 0;
+            while (pc < memoria.length && pasos < maxPasos) {
+                paso();
+                pasos++;
+            }
+            if (pasos === maxPasos) {
+                alert("⚠️ Se alcanzó el límite de ejecución (1000 instrucciones). ¿Hay un bucle infinito?");
+            }
+        }
+
+
+        function reset() {
+            for (let i = 0; i < 16; i++) registros[i] = 0;
+            for (let i = 0; i < memoria.length; i++) memoria[i] = 0;
+            pc = 0;
+            instruccionesVisibles.clear();
+            document.getElementById("codigo").value = "";
+            actualizarVista();
+        }
+
+        function actualizarVista() {
+            const tablaR = document.getElementById("registros");
+            const tablaM = document.getElementById("memoria");
+
+            tablaR.innerHTML = "<tr><th>Registro</th><th>Valor</th></tr>";
+            for (let i = 0; i < 16; i++) {
+                const nombre = `r${i.toString(16).toUpperCase()}`;
+                tablaR.innerHTML += `<tr><td>${nombre}</td><td onclick=\"editarRegistro(${i})\">0x${registros[i].toString(16).padStart(4, "0").toUpperCase()}</td></tr>`;
+            }
+
+            const inicio = paginaMemoria * tamBloque;
+            const fin = inicio + tamBloque;
+
+            tablaM.innerHTML = `<tr><th>Dirección</th><th>Valor</th></tr>`;
+            for (let i = inicio; i < fin; i++) {
+                const hexDir = "0x" + i.toString(16).padStart(4, "0").toUpperCase();
+                const valor = memoria[i].toString(16).padStart(4, "0").toUpperCase();
+                const claseActual = (i === pc) ? 'style="background-color: yellow; font-weight: bold;"' : '';
+                tablaM.innerHTML += `<tr><td>${hexDir}</td><td ${claseActual} onclick=\"editarMemoria(${i})\">0x${valor}</td></tr>`;
+            }
+
+            document.getElementById("memRange").textContent = `0x${inicio.toString(16).padStart(4, "0").toUpperCase()} - 0x${(fin - 1).toString(16).padStart(4, "0").toUpperCase()}`;
+        }
+
+        function actualizarPanelControl(palabra) {
+            const pcDec = (pc + 1).toString();
+            const proximaPalabra = memoria[pc + 1] || 0;
+            const proximaIR = proximaPalabra.toString(16).padStart(4, "0").toUpperCase(); // posición humana (empieza en 1)
+            const irHex = palabra.toString(16).padStart(4, "0").toUpperCase();
+
+            const opcode = (palabra >> 12) & 0xF;
+            const r1 = (palabra >> 8) & 0xF;
+            const r2 = (palabra >> 4) & 0xF;
+            const r3 = palabra & 0xF;
+            const val8 = palabra & 0xFF;
+
+            document.getElementById("panel-pc").textContent = pcDec;
+            document.getElementById("panel-ir").textContent = proximaIR;
+
+            let op1 = "--", op2 = "--";
+
+            switch (opcode) {
+                case 0x0: // LD
+                case 0x1: // ST
+                    op1 = (registros[0xD] + val8).toString(16).padStart(4, "0").toUpperCase();
+                    op2 = (opcode === 0x0) ? memoria[registros[0xD] + val8].toString(16).padStart(4, "0").toUpperCase() : registros[r1].toString(16).padStart(4, "0").toUpperCase();
+                    break;
+                case 0x6: // ADDS
+                    op1 = registros[r2].toString(16).padStart(4, "0").toUpperCase();
+                    op2 = registros[r3].toString(16).padStart(4, "0").toUpperCase();
+                    break;
+                case 0x2:
+                case 0x3:
+                    op1 = val8.toString(16).padStart(2, "0").toUpperCase();
+                    break;
+            }
+
+            document.getElementById("panel-op1").textContent = op1;
+            document.getElementById("panel-op2").textContent = op2;
+
+            // resaltar línea actual en el textarea
+            const codigoTextarea = document.getElementById("codigo");
+            const lineas = codigoTextarea.value.split("\n");
+            const pcLinea = `0x${pc.toString(16).padStart(4, "0").toUpperCase()}`;
+            codigoTextarea.value = lineas.map(linea => {
+                return linea.startsWith(pcLinea) ? `>>> ${linea}` : linea.replace(/^>>>\s*/, "");
+            }).join("\n");
+        }
+
+        function editarRegistro(index) {
+            const actual = registros[index].toString(16).padStart(4, "0").toUpperCase();
+            const nuevo = prompt(`Nuevo valor HEX para r${index.toString(16).toUpperCase()}:`, `0x${actual}`);
+            if (nuevo !== null && /^0x[0-9A-Fa-f]{1,4}$/.test(nuevo)) {
+                registros[index] = parseInt(nuevo, 16) & 0xFFFF;
+                actualizarVista();
+            }
+        }
+
+        function editarMemoria(index) {
+            const actual = memoria[index].toString(16).padStart(4, "0").toUpperCase();
+            const nuevo = prompt(`Nuevo valor HEX para Mem[0x${index.toString(16).padStart(4, "0").toUpperCase()}]:`, `0x${actual}`);
+            if (nuevo !== null && /^0x[0-9A-Fa-f]{1,4}$/.test(nuevo)) {
+                memoria[index] = parseInt(nuevo, 16) & 0xFFFF;
+                const nuevaInstruccion = desensamblarPalabra(memoria[index]);
+                const codigoTextarea = document.getElementById("codigo");
+                const linea = `0x${index.toString(16).padStart(4, "0").toUpperCase()}: ${nuevaInstruccion}`;
+
+                // Reemplazar línea si ya existe
+                const lineas = codigoTextarea.value.split("\n");
+                const existe = lineas.findIndex(l => l.startsWith(`0x${index.toString(16).padStart(4, "0").toUpperCase()}:`));
+                if (existe >= 0) {
+                    lineas[existe] = linea;
+                    codigoTextarea.value = lineas.join("\n");
+                } else {
+                    codigoTextarea.value += (codigoTextarea.value ? "\n" : "") + linea;
+                }
+
+                actualizarVista();
+            }
+        }
+
+        function nextPagina() {
+            if ((paginaMemoria + 1) * tamBloque < memoria.length) {
+                paginaMemoria++;
+                actualizarVista();
+            }
+        }
+
+        function prevPagina() {
+            if (paginaMemoria > 0) {
+                paginaMemoria--;
+                actualizarVista();
+            }
+        }
+
+        function desensamblarPalabra(word) {
+            const opcode = (word >> 12) & 0xF;
+            const r1 = (word >> 8) & 0xF;
+            const r2 = (word >> 4) & 0xF;
+            const r3 = word & 0xF;
+            const val8 = word & 0xFF;
+
+            switch (opcode) {
+                case 0x2:
+                    return `LLI r${r1.toString(16).toUpperCase()}, ${val8.toString(16).toUpperCase()}`;
+                case 0x3:
+                    return `LHI r${r1.toString(16).toUpperCase()}, ${val8.toString(16).toUpperCase()}`;
+                case 0x0:
+                    return `LD r${r1.toString(16).toUpperCase()}, [rD+#${val8.toString(16).toUpperCase()}]`;
+                case 0x1:
+                    return `ST r${r1.toString(16).toUpperCase()}, [rD+#${val8.toString(16).toUpperCase()}]`;
+                case 0x6:
+                    return `ADDS r${r1.toString(16).toUpperCase()}, r${r2.toString(16).toUpperCase()}, r${r3.toString(16).toUpperCase()}`;
+                case 0xE:
+                    return `RET`;
+                case 0xF:
+                    return `HALT`;
+                default:
+                    return `??? (0x${word.toString(16).padStart(4, "0").toUpperCase()})`;
+            }
+        }
+
+        actualizarVista();
+    </script>
+
+</body>
+
+</html>
