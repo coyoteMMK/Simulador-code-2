@@ -13,16 +13,20 @@ function desensamblarPalabra(word) {
   const r2 = (word >> 4) & 0xf
   const r3 = word & 0xf
   const val8 = word & 0xff
+  const rx = `R${r1.toString(16).toUpperCase()}`
+  const rs = `R${r2.toString(16).toUpperCase()}`
+  const ra = `R${r3.toString(16).toUpperCase()}`
+  const v = `H'${val8.toString(16).toUpperCase().padStart(2, '0')}`
 
   switch (opcode) {
     case 0x0:
-      return `LD r${r1.toString(16).toUpperCase()}, [rD+#${val8.toString(16).toUpperCase()}]`
+      return `LD ${rx}, [RD+${v}]`
     case 0x1:
-      return `ST r${r1.toString(16).toUpperCase()}, [rD+#${val8.toString(16).toUpperCase()}]`
+      return `ST [RD+${v}], ${rx}`
     case 0x6:
-      return `ADDS r${r1.toString(16).toUpperCase()}, r${r2.toString(16).toUpperCase()}, r${r3.toString(16).toUpperCase()}`
+      return `ADDS ${rx}, ${rs}, ${ra}`
     case 0x7:
-      return `SUBS r${r1.toString(16).toUpperCase()}, r${r2.toString(16).toUpperCase()}, r${r3.toString(16).toUpperCase()}`
+      return `SUBS ${rx}, ${rs}, ${ra}`
     case 0xf:
       return 'HALT'
     default:
@@ -31,7 +35,7 @@ function desensamblarPalabra(word) {
 }
 
 function resaltarLineaCodigo(codigo, pc) {
-  const pcLinea = `0x${toHex(pc, 4)}`
+  const pcLinea = `[${toHex(pc, 4)}]:`
   return codigo
     .split('\n')
     .map((linea) =>
@@ -41,7 +45,7 @@ function resaltarLineaCodigo(codigo, pc) {
 }
 
 function actualizarLineaCodigo(codigo, index, instruccion) {
-  const prefijo = `0x${toHex(index, 4)}:`
+  const prefijo = `[${toHex(index, 4)}]:`
   const linea = `${prefijo} ${instruccion}`
   const lineas = codigo ? codigo.split('\n') : []
   const existe = lineas.findIndex((l) => l.startsWith(prefijo))
