@@ -1,6 +1,7 @@
 import { toHex } from '../simulator/core';
+import HexDisplay from './HexDisplay';
 
-export default function RegistersPanel({ registros, filasRegistros, onEditRegistro }) {
+export default function RegistersPanel({ registros, filasRegistros, onEditRegistro, apagado }) {
   return (
     <article className="rounded-xl border border-slate-800 bg-slate-900/70 p-4">
       <h2 className="mb-3 text-lg font-semibold">Registros</h2>
@@ -24,7 +25,7 @@ export default function RegistersPanel({ registros, filasRegistros, onEditRegist
                   className="cursor-pointer border border-slate-700 px-3 py-2 hover:bg-cyan-900/50"
                   onClick={() => onEditRegistro(izq)}
                 >
-                  0x{toHex(registros[izq], 4)}
+                  <HexDisplay value={toHex(registros[izq], 4)} apagado={apagado} />
                 </td>
                 <td className="border border-slate-700 px-3 py-2">
                   r{der.toString(16).toUpperCase()}
@@ -33,7 +34,7 @@ export default function RegistersPanel({ registros, filasRegistros, onEditRegist
                   className="cursor-pointer border border-slate-700 px-3 py-2 hover:bg-cyan-900/50"
                   onClick={() => onEditRegistro(der)}
                 >
-                  0x{toHex(registros[der], 4)}
+                  <HexDisplay value={toHex(registros[der], 4)} apagado={apagado} />
                 </td>
               </tr>
             ))}

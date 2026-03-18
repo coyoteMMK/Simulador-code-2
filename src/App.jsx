@@ -4,6 +4,7 @@ import RegistersPanel from './components/RegistersPanel';
 import MemoryPanel from './components/MemoryPanel';
 import ControlCodePanel from './components/ControlCodePanel';
 import ToastMessage from './components/ToastMessage';
+import HexEditModal from './components/HexEditModal';
 import {
   MEM_SIZE,
   TAM_BLOQUE,
@@ -18,6 +19,11 @@ import {
 
 function App() {
   const generarHexAleatorio = () => toHex(Math.floor(Math.random() * 0x10000), 4);
+  const crearRegistrosBase = () => {
+    const base = Array(16).fill(0);
+    base[0xE] = 0xF000;
+    return base;
+  };
 
   const [encendido, setEncendido] = useState(false);
   const [modoPasoAPaso, setModoPasoAPaso] = useState(false);
@@ -26,18 +32,29 @@ function App() {
   const [continuarEnEjecucion, setContinuarEnEjecucion] = useState(false);
   const [autoEjecutando, setAutoEjecutando] = useState(false);
   const [resaltarEjecucion, setResaltarEjecucion] = useState(false);
+  const [flags, setFlags] = useState({ z: false, s: false, c: false, v: false });
   const [visorDisplay, setVisorDisplay] = useState({ op1: '0000', op2: '0000' });
   const [execDisplay, setExecDisplay] = useState({ ir: '0000', pc: '0000' });
-  const [registros, setRegistros] = useState(() => Array(16).fill(0));
+  const [registros, setRegistros] = useState(() => crearRegistrosBase());
   const [memoria, setMemoria] = useState(() => Array(MEM_SIZE).fill(0));
   const [paginaMemoria, setPaginaMemoria] = useState(0);
   const [pc, setPc] = useState(0);
   const [codigo, setCodigo] = useState('');
   const [mensaje, setMensaje] = useState('');
+  const [editorHex, setEditorHex] = useState({
+    abierto: false,
+    tipo: '',
+    index: -1,
+    titulo: '',
+    etiqueta: '',
+    valor: '',
+    error: '',
+  });
   const [, setPanel] = useState({ pc: '1', ir: '0000', op1: '----', op2: '----' });
   const [direccionInput, setDireccionInput] = useState('0000');
   const [ip2Hex, setIp2Hex] = useState(() => generarHexAleatorio());
   const autoRunRef = useRef(null);
+  const fileInputRef = useRef(null);
 
   const inicio = paginaMemoria * TAM_BLOQUE;
   const fin = inicio + TAM_BLOQUE;
@@ -155,19 +172,272 @@ function App() {
     irARegistro();
   };
 
+  const parseHexToken = (token) => {
+    const limpio = token.trim().replace(/^0x/i, '');
+    if (!/^[0-9a-fA-F]{1,4}$/.test(limpio)) {
+      return null;
+    }
+    return parseInt(limpio, 16) & 0xffff;
+  };
+
+  const parseIntelHex = (contenido) => {
+    const lineas = contenido.split(/\r?\n/);
+    const bytes = new Map();
+    let baseAlta = 0;
+
+    lineas.forEach((lineaOriginal, idx) => {
+      const linea = lineaOriginal.replace(/\/\/.*$|;.*$|#.*$/g, '').trim();
+      if (!linea) {
+        return;
+      }
+      if (!linea.startsWith(':')) {
+        throw new Error(`Linea ${idx + 1}: formato Intel HEX invalido.`);
+      }
+
+      const payload = linea.slice(1);
+      if (!/^[0-9A-Fa-f]+$/.test(payload) || payload.length < 10 || payload.length % 2 !== 0) {
+        throw new Error(`Linea ${idx + 1}: contenido HEX invalido.`);
+      }
+
+      const count = parseInt(payload.slice(0, 2), 16);
+      const addr = parseInt(payload.slice(2, 6), 16);
+      const tipo = parseInt(payload.slice(6, 8), 16);
+      const dataHex = payload.slice(8, 8 + count * 2);
+
+      if (dataHex.length !== count * 2) {
+        throw new Error(`Linea ${idx + 1}: longitud de datos inconsistente.`);
+      }
+
+      if (tipo === 0x00) {
+        for (let i = 0; i < count; i += 1) {
+          const byteVal = parseInt(dataHex.slice(i * 2, i * 2 + 2), 16);
+          const byteAddr = baseAlta + addr + i;
+          bytes.set(byteAddr, byteVal);
+        }
+      } else if (tipo === 0x04) {
+        baseAlta = parseInt(dataHex, 16) << 16;
+      } else if (tipo === 0x01) {
+        return;
+      }
+    });
+
+    const palabras = new Map();
+    [...bytes.entries()].forEach(([byteAddr, byteVal]) => {
+      const wordAddr = (byteAddr >> 1) & 0xffff;
+      const previo = palabras.get(wordAddr) ?? 0;
+      if ((byteAddr & 1) === 0) {
+        palabras.set(wordAddr, ((byteVal & 0xff) << 8) | (previo & 0x00ff));
+      } else {
+        palabras.set(wordAddr, (previo & 0xff00) | (byteVal & 0xff));
+      }
+    });
+
+    if (palabras.size === 0) {
+      throw new Error('El archivo no contiene datos para cargar.');
+    }
+
+    const updates = [...palabras.entries()]
+      .map(([address, value]) => ({ address, value: value & 0xffff }))
+      .sort((a, b) => a.address - b.address);
+
+    return {
+      updates,
+      startAddress: updates[0].address,
+    };
+  };
+
+  const parseCode2Hex = (contenido) => {
+    const lineas = contenido.split(/\r?\n/);
+    const updatesMap = new Map();
+
+    lineas.forEach((lineaOriginal, idx) => {
+      const linea = lineaOriginal.replace(/\/\/.*$|;.*$|#.*$/g, '').trim();
+      if (!linea) {
+        return;
+      }
+
+      if (!linea.startsWith(':')) {
+        throw new Error(`Linea ${idx + 1}: formato CODE-2 HEX invalido.`);
+      }
+
+      const payload = linea.slice(1);
+      if (!/^[0-9A-Fa-f]+$/.test(payload) || payload.length < 10 || payload.length % 2 !== 0) {
+        throw new Error(`Linea ${idx + 1}: contenido HEX invalido.`);
+      }
+
+      const count = parseInt(payload.slice(0, 2), 16);
+      const addr = parseInt(payload.slice(2, 6), 16) & 0xffff;
+      const tipo = parseInt(payload.slice(6, 8), 16);
+      const dataHex = payload.slice(8, 8 + count * 2);
+
+      if (dataHex.length !== count * 2) {
+        throw new Error(`Linea ${idx + 1}: longitud de datos inconsistente.`);
+      }
+
+      if (tipo === 0x01) {
+        return;
+      }
+
+      if (tipo !== 0x00) {
+        throw new Error(`Linea ${idx + 1}: tipo de registro no soportado para CODE-2 HEX.`);
+      }
+
+      if (count % 2 !== 0) {
+        throw new Error(`Linea ${idx + 1}: la cantidad de bytes debe ser par.`);
+      }
+
+      for (let i = 0; i < count; i += 2) {
+        const hi = parseInt(dataHex.slice(i * 2, i * 2 + 2), 16);
+        const lo = parseInt(dataHex.slice(i * 2 + 2, i * 2 + 4), 16);
+        const wordAddr = (addr + i / 2) & 0xffff;
+        updatesMap.set(wordAddr, ((hi << 8) | lo) & 0xffff);
+      }
+    });
+
+    if (updatesMap.size === 0) {
+      throw new Error('El archivo no contiene palabras CODE-2 validas.');
+    }
+
+    const updates = [...updatesMap.entries()]
+      .map(([address, value]) => ({ address, value }))
+      .sort((a, b) => a.address - b.address);
+
+    return {
+      updates,
+      startAddress: updates[0].address,
+    };
+  };
+
+  const parseTextoHex = (contenido) => {
+    const updatesMap = new Map();
+    let cursor = 0;
+
+    const lineas = contenido.split(/\r?\n/);
+    lineas.forEach((lineaOriginal, idx) => {
+      const sinComentario = lineaOriginal.replace(/\/\/.*$|;.*$|#.*$/g, '').trim();
+      if (!sinComentario) {
+        return;
+      }
+
+      const directiva = sinComentario.match(/^@([0-9a-fA-F]{1,4})$/);
+      if (directiva) {
+        cursor = parseInt(directiva[1], 16) & 0xffff;
+        return;
+      }
+
+      const conDireccion = sinComentario.match(/^([0-9a-fA-FxX]{1,6})\s*:\s*([0-9a-fA-FxX]{1,6})$/);
+      if (conDireccion) {
+        const address = parseHexToken(conDireccion[1]);
+        const value = parseHexToken(conDireccion[2]);
+        if (address === null || value === null) {
+          throw new Error(`Linea ${idx + 1}: direccion/valor invalido.`);
+        }
+        updatesMap.set(address, value);
+        cursor = (address + 1) & 0xffff;
+        return;
+      }
+
+      const tokens = sinComentario.split(/[\s,]+/).filter(Boolean);
+      if (tokens.length === 2) {
+        const address = parseHexToken(tokens[0]);
+        const value = parseHexToken(tokens[1]);
+        if (address !== null && value !== null) {
+          updatesMap.set(address, value);
+          cursor = (address + 1) & 0xffff;
+          return;
+        }
+      }
+
+      tokens.forEach((token) => {
+        const value = parseHexToken(token);
+        if (value === null) {
+          throw new Error(`Linea ${idx + 1}: token HEX invalido (${token}).`);
+        }
+        updatesMap.set(cursor, value);
+        cursor = (cursor + 1) & 0xffff;
+      });
+    });
+
+    if (updatesMap.size === 0) {
+      throw new Error('El archivo no contiene palabras HEX validas.');
+    }
+
+    const updates = [...updatesMap.entries()]
+      .map(([address, value]) => ({ address, value: value & 0xffff }))
+      .sort((a, b) => a.address - b.address);
+
+    return {
+      updates,
+      startAddress: updates[0].address,
+    };
+  };
+
+  const cargarProgramaDesdeArchivo = async (event) => {
+    const archivo = event.target.files?.[0];
+    event.target.value = '';
+
+    if (!archivo) {
+      return;
+    }
+
+    try {
+      detenerAutoEjecucion();
+
+      const contenido = await archivo.text();
+      let resultado;
+
+      if (/^\s*:/m.test(contenido)) {
+        try {
+          resultado = parseCode2Hex(contenido);
+        } catch {
+          resultado = parseIntelHex(contenido);
+        }
+      } else {
+        resultado = parseTextoHex(contenido);
+      }
+
+      const { updates, startAddress } = resultado;
+
+      const nuevaMemoria = [...memoria];
+      updates.forEach(({ address, value }) => {
+        nuevaMemoria[address] = value;
+      });
+
+      const lineasCodigo = updates
+        .map(({ address, value }) => `[${toHex(address, 4)}]: ${desensamblarPalabra(value)}`)
+        .join('\n');
+
+      setMemoria(nuevaMemoria);
+      setPc(startAddress);
+      setPaginaMemoria(Math.floor(startAddress / TAM_BLOQUE));
+      setContinuarEnEjecucion(false);
+      setResaltarEjecucion(false);
+      setCodigo(lineasCodigo);
+      setPanel(obtenerPanel(startAddress, nuevaMemoria[startAddress] ?? 0, registros, nuevaMemoria));
+      setExecDisplay({
+        ir: toHex(nuevaMemoria[startAddress] ?? 0, 4),
+        pc: toHex(startAddress, 4),
+      });
+      setDireccionInput(toHex(startAddress, 4));
+
+      if (modoCarga === 'direccion') {
+        actualizarVisor('direccion', startAddress, registroVisualizado, nuevaMemoria, registros);
+      } else {
+        actualizarVisor('registro', startAddress, registroVisualizado, nuevaMemoria, registros);
+      }
+
+      setMensaje(`Programa cargado: ${updates.length} palabras desde H${toHex(startAddress, 4)}.`);
+    } catch (error) {
+      setMensaje(`Error al cargar archivo: ${error.message}`);
+    }
+  };
+
   const cargarPrograma = () => {
-    detenerAutoEjecucion();
-    setPc(0);
-    setCodigo('');
-    setContinuarEnEjecucion(false);
-    setResaltarEjecucion(false);
-    setMensaje('Programa cargado.');
-    setPanel({ pc: '1', ir: '0000', op1: '----', op2: '----' });
-    setExecDisplay({ ir: '0000', pc: '0000' });
+    fileInputRef.current?.click();
   };
 
   const paso = () => {
-    const resultado = ejecutarUnPaso(registros, memoria, pc);
+    const resultado = ejecutarUnPaso(registros, memoria, pc, flags);
 
     if (resultado.panel) {
       setPanel(resultado.panel);
@@ -180,6 +450,7 @@ function App() {
       ir: toHex(resultado.memoria[resultado.pc] ?? 0, 4),
       pc: toHex(resultado.pc, 4),
     });
+    setFlags(resultado.flags);
     if (resultado.halted) {
       setContinuarEnEjecucion(false);
     }
@@ -222,7 +493,7 @@ function App() {
     const inicioEjecucion = parseInt(visorDisplay.op1, 16);
     const direccionInicio = Number.isNaN(inicioEjecucion) ? pc : inicioEjecucion & 0xffff;
 
-    const resultado = ejecutarUnPaso(registros, memoria, direccionInicio);
+    const resultado = ejecutarUnPaso(registros, memoria, direccionInicio, flags);
 
     if (resultado.panel) {
       setPanel(resultado.panel);
@@ -236,6 +507,7 @@ function App() {
       ir: toHex(resultado.memoria[resultado.pc] ?? 0, 4),
       pc: toHex(resultado.pc, 4),
     });
+    setFlags(resultado.flags);
     setResaltarEjecucion(true);
     setContinuarEnEjecucion(modoPasoAPaso && !resultado.halted);
     setCodigo((prev) => (prev ? resaltarLineaCodigo(prev, resultado.pc) : prev));
@@ -245,13 +517,15 @@ function App() {
       let regsActual = resultado.registros;
       let memActual = resultado.memoria;
       let pcActual = resultado.pc;
+      let flagsActual = resultado.flags;
 
       setAutoEjecutando(true);
       autoRunRef.current = window.setInterval(() => {
-        const pasoAuto = ejecutarUnPaso(regsActual, memActual, pcActual);
+        const pasoAuto = ejecutarUnPaso(regsActual, memActual, pcActual, flagsActual);
         regsActual = pasoAuto.registros;
         memActual = pasoAuto.memoria;
         pcActual = pasoAuto.pc;
+        flagsActual = pasoAuto.flags;
 
         if (pasoAuto.panel) {
           setPanel(pasoAuto.panel);
@@ -265,6 +539,7 @@ function App() {
           ir: toHex(pasoAuto.memoria[pasoAuto.pc] ?? 0, 4),
           pc: toHex(pasoAuto.pc, 4),
         });
+        setFlags(pasoAuto.flags);
         setCodigo((prev) => (prev ? resaltarLineaCodigo(prev, pasoAuto.pc) : prev));
 
         if (pasoAuto.halted) {
@@ -281,7 +556,8 @@ function App() {
 
     if (encendido) {
       setEncendido(false);
-      setRegistros(Array(16).fill(0));
+      setEditorHex((prev) => ({ ...prev, abierto: false, error: '' }));
+      setRegistros(crearRegistrosBase());
       setMemoria(Array(MEM_SIZE).fill(0));
       setPaginaMemoria(0);
       setPc(0);
@@ -290,6 +566,7 @@ function App() {
       setRegistroVisualizado(0);
       setContinuarEnEjecucion(false);
       setResaltarEjecucion(false);
+      setFlags({ z: false, s: false, c: false, v: false });
       setVisorDisplay({ op1: '0000', op2: '0000' });
       setExecDisplay({ ir: '0000', pc: '0000' });
       setIp2Hex('0000');
@@ -300,6 +577,7 @@ function App() {
     }
 
     const regsIniciales = Array.from({ length: 16 }, (_, i) => i);
+    regsIniciales[0xE] = 0xF000;
     const memAleatorios = Array.from({ length: MEM_SIZE }, randInstruccion);
     const pcInicial = 0;
 
@@ -314,6 +592,7 @@ function App() {
     setRegistroVisualizado(0);
     setContinuarEnEjecucion(false);
     setResaltarEjecucion(false);
+    setFlags({ z: false, s: false, c: false, v: false });
     setVisorDisplay({ op1: toHex(pcInicial, 4), op2: toHex(memAleatorios[pcInicial] ?? 0, 4) });
     setExecDisplay({ ir: '0000', pc: '0000' });
     setCodigo('');
@@ -321,40 +600,63 @@ function App() {
     setMensaje('ON: simulador iniciado.');
   };
 
-  const editarRegistro = (index) => {
-    const actual = toHex(registros[index], 4);
-    const nuevo = window.prompt(
-      `Nuevo valor HEX para r${index.toString(16).toUpperCase()}:`,
-      `0x${actual}`,
-    );
+  const cerrarEditorHex = () => {
+    setEditorHex((prev) => ({ ...prev, abierto: false, error: '' }));
+  };
 
-    if (nuevo && /^0x[0-9A-Fa-f]{1,4}$/.test(nuevo)) {
+  const abrirEditorRegistro = (index) => {
+    setEditorHex({
+      abierto: true,
+      tipo: 'registro',
+      index,
+      titulo: `Editar registro r${index.toString(16).toUpperCase()}`,
+      etiqueta: 'Valor HEX',
+      valor: `0x${toHex(registros[index], 4)}`,
+      error: '',
+    });
+  };
+
+  const confirmarEditorHex = () => {
+    const texto = editorHex.valor.trim();
+    const limpio = texto.toLowerCase().startsWith('0x') ? texto.slice(2) : texto;
+
+    if (!/^[0-9a-fA-F]{1,4}$/.test(limpio)) {
+      setEditorHex((prev) => ({
+        ...prev,
+        error: 'Formato invalido. Use HEX de 1 a 4 digitos.',
+      }));
+      return;
+    }
+
+    const valor = parseInt(limpio, 16) & 0xffff;
+
+    if (editorHex.tipo === 'registro') {
       const nuevos = [...registros];
-      nuevos[index] = parseInt(nuevo, 16) & 0xffff;
+      nuevos[editorHex.index] = valor;
       setRegistros(nuevos);
       if (modoCarga === 'registro') {
         actualizarVisor('registro', pc, registroVisualizado, memoria, nuevos);
       }
+      setMensaje(`r${editorHex.index.toString(16).toUpperCase()} actualizado a 0x${toHex(valor, 4)}.`);
+      cerrarEditorHex();
+      return;
     }
+
   };
 
-  const editarMemoria = (index) => {
-    const actual = toHex(memoria[index], 4);
-    const nuevo = window.prompt(
-      `Nuevo valor HEX para Mem[0x${toHex(index, 4)}]:`,
-      `0x${actual}`,
-    );
+  const editarRegistro = (index) => {
+    abrirEditorRegistro(index);
+  };
 
-    if (nuevo && /^0x[0-9A-Fa-f]{1,4}$/.test(nuevo)) {
-      const valor = parseInt(nuevo, 16) & 0xffff;
-      const nuevaMemoria = [...memoria];
-      nuevaMemoria[index] = valor;
-      setMemoria(nuevaMemoria);
-      if (modoCarga === 'direccion') {
-        actualizarVisor('direccion', pc, registroVisualizado, nuevaMemoria, registros);
-      }
-      setCodigo((prev) => actualizarLineaCodigo(prev, index, desensamblarPalabra(valor)));
+  const editarMemoria = (index, valor) => {
+    const nuevaMemoria = [...memoria];
+    nuevaMemoria[index] = valor;
+    setMemoria(nuevaMemoria);
+    if (modoCarga === 'direccion') {
+      actualizarVisor('direccion', pc, registroVisualizado, nuevaMemoria, registros);
     }
+    setCodigo((prev) => actualizarLineaCodigo(prev, index, desensamblarPalabra(valor)));
+    setMensaje(`Mem[H${toHex(index, 4)}] actualizada a 0x${toHex(valor, 4)}.`);
   };
 
   const apagado = !encendido;
@@ -362,6 +664,14 @@ function App() {
   return (
     <main className="min-h-screen bg-slate-950 px-4 py-8 text-slate-100 md:px-8">
       <div className="mx-auto max-w-7xl space-y-6">
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept=".hex,.ehc,text/plain"
+          onChange={cargarProgramaDesdeArchivo}
+          className="hidden"
+        />
+
         <TopSection
           codigo={codigo}
           encendido={encendido}
@@ -374,6 +684,7 @@ function App() {
           visualOp2={visualOp2}
           modoCarga={modoCarga}
           direccionInput={direccionInput}
+          flags={flags}
           onToggleEncendido={toggleEncendido}
           onTogglePasoAPaso={() => {
             detenerAutoEjecucion();
@@ -381,7 +692,7 @@ function App() {
             setContinuarEnEjecucion(false);
           }}
           onSelectModoCarga={seleccionarModoCarga}
-          onDireccionInputChange={(e) => setDireccionInput(e.target.value.toUpperCase())}
+          onDireccionInputChange={(nuevoValor) => setDireccionInput(nuevoValor)}
           onCargarPrograma={cargarPrograma}
           onContinuar={continuarVisualizador}
           onEjecutar={ejecutarPrograma}
@@ -392,6 +703,7 @@ function App() {
             registros={registros}
             filasRegistros={filasRegistros}
             onEditRegistro={editarRegistro}
+            apagado={apagado}
           />
 
           <MemoryPanel
@@ -400,7 +712,9 @@ function App() {
             bloqueMemoria={bloqueMemoria}
             pc={pc}
             resaltarEjecucion={resaltarEjecucion}
+            apagado={apagado}
             onEditMemoria={editarMemoria}
+            onFormatoInvalido={() => setMensaje('Formato invalido. Use HEX de 1 a 4 digitos.')}
             onPrev={() => setPaginaMemoria((p) => Math.max(0, p - 1))}
             onNext={() =>
               setPaginaMemoria((p) => ((p + 1) * TAM_BLOQUE < MEM_SIZE ? p + 1 : p))
@@ -417,6 +731,18 @@ function App() {
         </section>
 
         <ToastMessage mensaje={mensaje} />
+        <HexEditModal
+          abierto={editorHex.abierto}
+          titulo={editorHex.titulo}
+          etiqueta={editorHex.etiqueta}
+          valor={editorHex.valor}
+          error={editorHex.error}
+          onChange={(nuevoValor) =>
+            setEditorHex((prev) => ({ ...prev, valor: nuevoValor, error: '' }))
+          }
+          onConfirm={confirmarEditorHex}
+          onCancel={cerrarEditorHex}
+        />
       </div>
     </main>
   );

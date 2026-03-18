@@ -1,4 +1,5 @@
 import HexDisplay from './HexDisplay';
+import HexInput from './HexInput';
 
 export default function TopSection({
   codigo,
@@ -12,6 +13,7 @@ export default function TopSection({
   visualOp2,
   modoCarga,
   direccionInput,
+  flags,
   onToggleEncendido,
   onTogglePasoAPaso,
   onSelectModoCarga,
@@ -30,7 +32,7 @@ export default function TopSection({
       />
 
       <div className="rounded-xl border border-slate-700/80 bg-slate-950/80 p-3">
-        <div className="grid gap-3 md:grid-cols-[1fr_170px]">
+        <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_220px]">
           <div className="grid gap-3 sm:grid-cols-[1fr_1fr]">
             <div className="space-y-2 rounded-lg border border-slate-800 bg-slate-900/70 p-2">
               <button
@@ -71,24 +73,25 @@ export default function TopSection({
               <div className="space-y-1 rounded-md border border-slate-700 bg-slate-950 p-2">
                 <div className="space-y-1">
                   <p className="text-center text-xs font-semibold tracking-wide text-indigo-300">IR</p>
-                  <HexDisplay value={irActualHex} apagado={apagado} className="w-full text-4xl leading-none" />
+                  <HexDisplay value={irActualHex} apagado={apagado} className="mx-auto" />
                 </div>
                 <div className="space-y-1">
                   <p className="text-center text-xs font-semibold tracking-wide text-indigo-300">PC</p>
-                  <HexDisplay value={pcActualHex} apagado={apagado} className="w-full text-4xl leading-none" />
+                  <HexDisplay value={pcActualHex} apagado={apagado} className="mx-auto" />
                 </div>
               </div>
             </div>
 
             <div className="space-y-2 rounded-lg border border-slate-800 bg-slate-900/70 p-2">
-              <input
-                id="direccion"
-                value={direccionInput}
-                onChange={onDireccionInputChange}
-                disabled={apagado}
-                placeholder="0000"
-                className="w-full rounded-md border border-lime-500/40 bg-black px-3 py-2 font-mono text-sm tracking-widest text-lime-300 outline-none placeholder:text-lime-700/70 focus:border-lime-400 focus:shadow-[0_0_12px_-4px_rgba(163,230,53,0.85)] disabled:opacity-40"
-              />
+              <div className="flex justify-center">
+                <HexInput
+                  id="direccion"
+                  value={direccionInput}
+                  apagado={apagado}
+                  onChange={onDireccionInputChange}
+                  disabled={apagado}
+                />
+              </div>
 
               <div className="space-y-2">
                 <button
@@ -116,18 +119,45 @@ export default function TopSection({
                   Registros
                 </button>
               </div>
+
+              <div className={`rounded-md border px-2 py-2 transition ${apagado ? 'border-slate-800 bg-slate-950/40 opacity-60' : 'border-slate-700 bg-slate-950/70'}`}>
+                <div className="grid grid-cols-4 gap-2">
+                  {[
+                    { key: 'z', label: 'Z' },
+                    { key: 's', label: 'S' },
+                    { key: 'c', label: 'C' },
+                    { key: 'v', label: 'V' },
+                  ].map((item) => {
+                    const activa = !apagado && Boolean(flags?.[item.key]);
+                    return (
+                      <div key={item.key} className="flex flex-col items-center gap-1">
+                        <span className={`text-[11px] font-semibold tracking-wide ${apagado ? 'text-slate-500' : 'text-indigo-300'}`}>{item.label}</span>
+                        <span
+                          className={`h-3.5 w-3.5 rounded-full border transition-all ${
+                            activa
+                              ? 'border-lime-300 bg-lime-400 shadow-[0_0_10px_1px_rgba(163,230,53,0.8)]'
+                              : apagado
+                                ? 'border-slate-700 bg-slate-900'
+                                : 'border-slate-600 bg-slate-800'
+                          }`}
+                        />
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
             </div>
           </div>
 
           <div className="flex flex-col gap-2 rounded-lg border border-slate-800 bg-slate-900/70 p-2">
             <div className="space-y-2 rounded-md border border-slate-700 bg-slate-950/80 p-2">
-              <div className="flex items-center justify-between gap-2">
+              <div className="grid grid-cols-[auto_96px] items-center gap-2">
                 <span className="text-sm text-indigo-300">{etiquetaOp1}</span>
-                <HexDisplay value={visualOp1} apagado={apagado} className="min-w-[86px] text-xl" />
+                <HexDisplay value={visualOp1} apagado={apagado} />
               </div>
-              <div className="flex items-center justify-between gap-2">
+              <div className="grid grid-cols-[auto_96px] items-center gap-2">
                 <span className="text-sm text-indigo-300">C/OP2</span>
-                <HexDisplay value={visualOp2} apagado={apagado} className="min-w-[86px] text-xl" />
+                <HexDisplay value={visualOp2} apagado={apagado} />
               </div>
             </div>
 
