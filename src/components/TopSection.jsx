@@ -21,12 +21,12 @@ export default function TopSection({
   onEjecutar,
 }) {
   return (
-    <section className="grid gap-4 rounded-2xl border border-slate-800 bg-gradient-to-b from-slate-900/80 to-slate-950 p-4 shadow-[0_12px_40px_-20px_rgba(34,211,238,0.25)] xl:grid-cols-2">
+    <section className="grid gap-4 rounded-2xl border border-slate-800 bg-gradient-to-b from-slate-900/80 to-slate-950 p-4 shadow-[0_12px_40px_-20px_rgba(34,211,238,0.25)] xl:grid-cols-2 xl:items-stretch">
       <textarea
         value={codigo}
         readOnly
         placeholder="Instrucciones generadas por la memoria se mostraran aqui..."
-        className="h-44 w-full resize-none rounded-xl border border-slate-700/80 bg-slate-950 p-3 font-mono text-sm text-slate-200 outline-none focus:border-cyan-500/50"
+        className="min-h-44 w-full resize-none self-stretch rounded-xl border border-slate-700/80 bg-slate-950 p-3 font-mono text-sm text-slate-200 outline-none focus:border-cyan-500/50 xl:h-full"
       />
 
       <div className="rounded-xl border border-slate-700/80 bg-slate-950/80 p-3">
@@ -81,21 +81,21 @@ export default function TopSection({
             </div>
 
             <div className="space-y-2 rounded-lg border border-slate-800 bg-slate-900/70 p-2">
-              <div className="flex items-center justify-between gap-2">
-                <span className="text-sm text-indigo-300">{etiquetaOp1}</span>
-                <HexDisplay value={visualOp1} apagado={apagado} />
-              </div>
-              <div className="flex items-center justify-between gap-2">
-                <span className="text-sm text-indigo-300">C/OP2</span>
-                <HexDisplay value={visualOp2} apagado={apagado} />
-              </div>
+              <input
+                id="direccion"
+                value={direccionInput}
+                onChange={onDireccionInputChange}
+                disabled={apagado}
+                placeholder="0000"
+                className="w-full rounded-md border border-lime-500/40 bg-black px-3 py-2 font-mono text-sm tracking-widest text-lime-300 outline-none placeholder:text-lime-700/70 focus:border-lime-400 focus:shadow-[0_0_12px_-4px_rgba(163,230,53,0.85)] disabled:opacity-40"
+              />
 
-              <div className="grid grid-cols-2 gap-2">
+              <div className="space-y-2">
                 <button
                   type="button"
                   onClick={() => onSelectModoCarga('direccion')}
                   disabled={apagado}
-                  className={`rounded-md px-2 py-1 text-xs font-semibold transition disabled:cursor-not-allowed disabled:opacity-40 ${
+                  className={`w-full rounded-md px-2 py-1 text-xs font-semibold transition disabled:cursor-not-allowed disabled:opacity-40 ${
                     modoCarga === 'direccion'
                       ? 'bg-cyan-700 text-cyan-100'
                       : 'bg-slate-700 text-slate-200 hover:bg-slate-600'
@@ -107,7 +107,7 @@ export default function TopSection({
                   type="button"
                   onClick={() => onSelectModoCarga('registro')}
                   disabled={apagado}
-                  className={`rounded-md px-2 py-1 text-xs font-semibold transition disabled:cursor-not-allowed disabled:opacity-40 ${
+                  className={`w-full rounded-md px-2 py-1 text-xs font-semibold transition disabled:cursor-not-allowed disabled:opacity-40 ${
                     modoCarga === 'registro'
                       ? 'bg-cyan-700 text-cyan-100'
                       : 'bg-slate-700 text-slate-200 hover:bg-slate-600'
@@ -116,19 +116,21 @@ export default function TopSection({
                   Registros
                 </button>
               </div>
-
-              <input
-                id="direccion"
-                value={direccionInput}
-                onChange={onDireccionInputChange}
-                disabled={apagado}
-                placeholder="0000"
-                className="w-full rounded-md border border-slate-600 bg-slate-950 px-2 py-2 font-mono text-sm text-slate-100 outline-none focus:border-cyan-400 disabled:opacity-40"
-              />
             </div>
           </div>
 
           <div className="flex flex-col gap-2 rounded-lg border border-slate-800 bg-slate-900/70 p-2">
+            <div className="space-y-2 rounded-md border border-slate-700 bg-slate-950/80 p-2">
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-sm text-indigo-300">{etiquetaOp1}</span>
+                <HexDisplay value={visualOp1} apagado={apagado} className="min-w-[86px] text-xl" />
+              </div>
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-sm text-indigo-300">C/OP2</span>
+                <HexDisplay value={visualOp2} apagado={apagado} className="min-w-[86px] text-xl" />
+              </div>
+            </div>
+
             <button
               type="button"
               onClick={onCargarPrograma}

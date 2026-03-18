@@ -1,6 +1,6 @@
 import HexDisplay from './HexDisplay';
 
-export default function ControlCodePanel({ irActualHex, visualOp1, modoCarga, visualOp2, apagado }) {
+export default function ControlCodePanel({ ip2Hex, visualOp1, modoCarga, visualOp2, apagado }) {
   return (
     <article className="rounded-xl border border-slate-800 bg-slate-900/70 p-4">
       <h2 className="mb-3 text-lg font-semibold">Control CODE-2</h2>
@@ -15,7 +15,7 @@ export default function ControlCodePanel({ irActualHex, visualOp1, modoCarga, vi
           <tr>
             <td className="border border-slate-700 px-3 py-2 font-medium">IP2</td>
             <td className="border border-slate-700 px-3 py-2 text-center">
-              <HexDisplay value={irActualHex} apagado={apagado} className="min-w-[86px] text-2xl" />
+              <HexDisplay value={ip2Hex} apagado={apagado} className="min-w-[86px] text-2xl" />
             </td>
           </tr>
           <tr>

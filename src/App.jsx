@@ -17,6 +17,8 @@ import {
 } from './simulator/core';
 
 function App() {
+  const generarHexAleatorio = () => toHex(Math.floor(Math.random() * 0x10000), 4);
+
   const [encendido, setEncendido] = useState(false);
   const [modoPasoAPaso, setModoPasoAPaso] = useState(false);
   const [modoCarga, setModoCarga] = useState('direccion');
@@ -34,6 +36,7 @@ function App() {
   const [mensaje, setMensaje] = useState('');
   const [, setPanel] = useState({ pc: '1', ir: '0000', op1: '----', op2: '----' });
   const [direccionInput, setDireccionInput] = useState('0000');
+  const [ip2Hex, setIp2Hex] = useState(() => generarHexAleatorio());
   const autoRunRef = useRef(null);
 
   const inicio = paginaMemoria * TAM_BLOQUE;
@@ -289,6 +292,7 @@ function App() {
       setResaltarEjecucion(false);
       setVisorDisplay({ op1: '0000', op2: '0000' });
       setExecDisplay({ ir: '0000', pc: '0000' });
+      setIp2Hex('0000');
       setCodigo('');
       setMensaje('');
       setPanel({ pc: '1', ir: '0000', op1: '----', op2: '----' });
@@ -301,6 +305,7 @@ function App() {
 
     setEncendido(true);
     setModoPasoAPaso(true);
+    setIp2Hex(generarHexAleatorio());
     setRegistros(regsIniciales);
     setMemoria(memAleatorios);
     setPaginaMemoria(0);
@@ -403,7 +408,7 @@ function App() {
           />
 
           <ControlCodePanel
-            irActualHex={irActualHex}
+            ip2Hex={ip2Hex}
             visualOp1={visualOp1}
             modoCarga={modoCarga}
             visualOp2={visualOp2}
