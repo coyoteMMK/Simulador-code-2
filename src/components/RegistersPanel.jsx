@@ -1,0 +1,45 @@
+import { toHex } from '../simulator/core';
+
+export default function RegistersPanel({ registros, filasRegistros, onEditRegistro }) {
+  return (
+    <article className="rounded-xl border border-slate-800 bg-slate-900/70 p-4">
+      <h2 className="mb-3 text-lg font-semibold">Registros</h2>
+      <div className="max-h-[28rem] overflow-auto rounded-lg border border-slate-700">
+        <table className="w-full border-collapse text-center text-sm">
+          <thead className="bg-slate-800 text-slate-100">
+            <tr>
+              <th className="border border-slate-700 px-3 py-2">Registro</th>
+              <th className="border border-slate-700 px-3 py-2">Valor</th>
+              <th className="border border-slate-700 px-3 py-2">Registro</th>
+              <th className="border border-slate-700 px-3 py-2">Valor</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filasRegistros.map(([izq, der], fila) => (
+              <tr key={fila} className="odd:bg-slate-900 even:bg-slate-800/60">
+                <td className="border border-slate-700 px-3 py-2">
+                  r{izq.toString(16).toUpperCase()}
+                </td>
+                <td
+                  className="cursor-pointer border border-slate-700 px-3 py-2 hover:bg-cyan-900/50"
+                  onClick={() => onEditRegistro(izq)}
+                >
+                  0x{toHex(registros[izq], 4)}
+                </td>
+                <td className="border border-slate-700 px-3 py-2">
+                  r{der.toString(16).toUpperCase()}
+                </td>
+                <td
+                  className="cursor-pointer border border-slate-700 px-3 py-2 hover:bg-cyan-900/50"
+                  onClick={() => onEditRegistro(der)}
+                >
+                  0x{toHex(registros[der], 4)}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </article>
+  );
+}
