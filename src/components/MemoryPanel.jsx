@@ -72,6 +72,7 @@ export default function MemoryPanel({
       const input = inputRefs.current[siguiente];
       if (input) {
         input.focus();
+        input.setSelectionRange(0, 1);
       }
     });
   };
@@ -141,6 +142,10 @@ export default function MemoryPanel({
                         }
                       }}
                       onBlur={() => confirmarEdicion(indexAbsoluto, valor)}
+                      onCursorAfterLastDigit={(nuevoValor) => {
+                        confirmarEdicion(indexAbsoluto, valor, nuevoValor);
+                        enfocarSiguienteCelda(indexAbsoluto);
+                      }}
                       onKeyDown={(e) => {
                         if (e.key === 'Enter') {
                           confirmarEdicion(indexAbsoluto, valor);
@@ -149,6 +154,38 @@ export default function MemoryPanel({
                         if (e.key === 'Escape') {
                           setEdiciones((prev) => ({ ...prev, [indexAbsoluto]: toHex(valor, 4) }));
                           e.currentTarget.blur();
+                        }
+                        if (e.key === 'ArrowLeft') {
+                          const pos = e.currentTarget.selectionStart ?? 0;
+                          if (pos > 0) {
+                            return;
+                          }
+
+                          e.preventDefault();
+                          const anterior = indexAbsoluto - 1;
+                          if (anterior >= inicio) {
+                            const inputAnterior = inputRefs.current[anterior];
+                            if (inputAnterior) {
+                              inputAnterior.focus();
+                              inputAnterior.setSelectionRange(3, 4);
+                            }
+                          }
+                        }
+                        if (e.key === 'ArrowRight') {
+                          const pos = e.currentTarget.selectionStart ?? 0;
+                          if (pos < 3) {
+                            return;
+                          }
+
+                          e.preventDefault();
+                          const siguiente = indexAbsoluto + 1;
+                          if (siguiente < fin) {
+                            const inputSiguiente = inputRefs.current[siguiente];
+                            if (inputSiguiente) {
+                              inputSiguiente.focus();
+                              inputSiguiente.setSelectionRange(0, 1);
+                            }
+                          }
                         }
                       }}
                       className="mx-auto"

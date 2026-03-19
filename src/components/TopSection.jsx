@@ -199,19 +199,19 @@ export default function TopSection({
             </button>
             <button
               type="button"
+              onClick={onEjecutar}
+              disabled={apagado}
+              className="rounded-md bg-amber-400 px-4 py-2 text-sm font-semibold text-slate-900 transition hover:bg-amber-300 disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              Ejecutar
+            </button>
+            <button
+              type="button"
               onClick={onContinuar}
               disabled={apagado}
               className="rounded-md bg-emerald-500 px-4 py-2 text-sm font-semibold text-slate-900 transition hover:bg-emerald-400 disabled:cursor-not-allowed disabled:opacity-40"
             >
               Continuar
-            </button>
-            <button
-              type="button"
-              onClick={onEjecutar}
-              disabled={apagado}
-              className="rounded-md bg-amber-400 px-4 py-2 text-sm font-semibold text-slate-900 transition hover:bg-amber-300 disabled:cursor-not-allowed disabled:opacity-40"
-            >
-              Iniciar ejecucion
             </button>
           </div>
         </div>

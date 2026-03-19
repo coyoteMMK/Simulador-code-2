@@ -673,7 +673,7 @@ function App() {
       index,
       titulo: `Editar registro r${index.toString(16).toUpperCase()}`,
       etiqueta: 'Valor HEX',
-      valor: `0x${toHex(registros[index], 4)}`,
+      valor: toHex(registros[index], 4),
       error: '',
     });
   };
@@ -686,7 +686,7 @@ function App() {
       index,
       titulo: `Editar puerto IP${toHex(index, 2)}`,
       etiqueta: 'Valor HEX',
-      valor: `0x${toHex(valorActual, 4)}`,
+      valor: toHex(valorActual, 4),
       error: '',
     });
   };

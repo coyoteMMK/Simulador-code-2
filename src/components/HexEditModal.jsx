@@ -11,6 +11,11 @@ export default function HexEditModal({
   onCancel,
 }) {
   const inputRef = useRef(null);
+  const onCancelRef = useRef(onCancel);
+
+  useEffect(() => {
+    onCancelRef.current = onCancel;
+  }, [onCancel]);
 
   useEffect(() => {
     if (!abierto) {
@@ -24,7 +29,7 @@ export default function HexEditModal({
 
     const onKeyDown = (event) => {
       if (event.key === 'Escape') {
-        onCancel();
+        onCancelRef.current?.();
       }
     };
 
@@ -34,7 +39,7 @@ export default function HexEditModal({
       window.cancelAnimationFrame(frameId);
       window.removeEventListener('keydown', onKeyDown);
     };
-  }, [abierto, onCancel]);
+  }, [abierto]);
 
   if (!abierto) {
     return null;
@@ -53,14 +58,27 @@ export default function HexEditModal({
           id="hex-input"
           ref={inputRef}
           value={valor}
-          onChange={(e) => onChange(e.target.value.toUpperCase())}
+          onChange={(e) => {
+            const inicio = e.target.selectionStart;
+            const fin = e.target.selectionEnd;
+
+            onChange(e.target.value.toUpperCase());
+
+            window.requestAnimationFrame(() => {
+              if (!inputRef.current || inicio == null || fin == null) {
+                return;
+              }
+
+              inputRef.current.setSelectionRange(inicio, fin);
+            });
+          }}
           onKeyDown={(e) => {
             if (e.key === 'Enter') {
               onConfirm();
             }
           }}
           className="mt-1 w-full rounded-md border border-lime-500/40 bg-black px-3 py-2 font-mono text-base tracking-widest text-lime-300 outline-none placeholder:text-lime-700/70 focus:border-lime-400 focus:shadow-[0_0_12px_-4px_rgba(163,230,53,0.85)]"
-          placeholder="0x0000"
+          placeholder="0000"
           autoComplete="off"
         />
 
