@@ -19,6 +19,17 @@ import {
 
 function App() {
   const generarHexAleatorio = () => toHex(Math.floor(Math.random() * 0x10000), 4);
+  const generarPuertoAleatorio = () => Math.floor(Math.random() * 0x10000);
+  const crearPuertosAleatorios = () => ({
+    ip: Array.from({ length: 256 }, () => generarPuertoAleatorio()),
+    op: Array.from({ length: 256 }, () => generarPuertoAleatorio()),
+  });
+  const crearPuertosBase = (ip2 = 0) => {
+    const ip = Array(256).fill(0);
+    const op = Array(256).fill(0);
+    ip[0x02] = ip2 & 0xffff;
+    return { ip, op };
+  };
   const crearRegistrosBase = () => {
     const base = Array(16).fill(0);
     base[0xE] = 0xF000;
@@ -41,6 +52,7 @@ function App() {
   const [pc, setPc] = useState(0);
   const [codigo, setCodigo] = useState('');
   const [mensaje, setMensaje] = useState('');
+  const [modalFin, setModalFin] = useState({ abierto: false, texto: '' });
   const [editorHex, setEditorHex] = useState({
     abierto: false,
     tipo: '',
@@ -52,7 +64,7 @@ function App() {
   });
   const [, setPanel] = useState({ pc: '1', ir: '0000', op1: '----', op2: '----' });
   const [direccionInput, setDireccionInput] = useState('0000');
-  const [ip2Hex, setIp2Hex] = useState(() => generarHexAleatorio());
+  const [ioPorts, setIoPorts] = useState(() => crearPuertosBase(generarPuertoAleatorio()));
   const autoRunRef = useRef(null);
   const fileInputRef = useRef(null);
 
@@ -109,6 +121,43 @@ function App() {
     },
     [],
   );
+
+  // OP01 y OP02 siguen al display superior: D/OP1 y C/OP2.
+  useEffect(() => {
+    if (!encendido) {
+      return;
+    }
+
+    const op1Valor = parseInt(visualOp1, 16);
+    const op2Valor = parseInt(visualOp2, 16);
+
+    if (Number.isNaN(op1Valor) || Number.isNaN(op2Valor)) {
+      return;
+    }
+
+    setIoPorts((prev) => {
+      const opActual = prev.op ?? Array(256).fill(0);
+      const nuevoOp = [...opActual];
+      const v1 = op1Valor & 0xffff;
+      const v2 = op2Valor & 0xffff;
+      const cambio = nuevoOp[0x01] !== v1 || nuevoOp[0x02] !== v2;
+
+      if (!cambio) {
+        return prev;
+      }
+
+      nuevoOp[0x01] = v1;
+      nuevoOp[0x02] = v2;
+      return { ...prev, op: nuevoOp };
+    });
+  }, [encendido, visualOp1, visualOp2]);
+
+  const notificarFinPrograma = (texto) => {
+    setModalFin({
+      abierto: true,
+      texto: texto || 'Programa finalizado.',
+    });
+  };
 
   const irADireccion = () => {
     const texto = direccionInput.trim();
@@ -437,7 +486,7 @@ function App() {
   };
 
   const paso = () => {
-    const resultado = ejecutarUnPaso(registros, memoria, pc, flags);
+    const resultado = ejecutarUnPaso(registros, memoria, pc, flags, ioPorts);
 
     if (resultado.panel) {
       setPanel(resultado.panel);
@@ -451,8 +500,10 @@ function App() {
       pc: toHex(resultado.pc, 4),
     });
     setFlags(resultado.flags);
+    setIoPorts(resultado.io);
     if (resultado.halted) {
       setContinuarEnEjecucion(false);
+      notificarFinPrograma('Ejecucion finalizada (HALT).');
     }
     setCodigo((prev) => (prev ? resaltarLineaCodigo(prev, resultado.pc) : prev));
     setMensaje(resultado.mensaje);
@@ -493,7 +544,7 @@ function App() {
     const inicioEjecucion = parseInt(visorDisplay.op1, 16);
     const direccionInicio = Number.isNaN(inicioEjecucion) ? pc : inicioEjecucion & 0xffff;
 
-    const resultado = ejecutarUnPaso(registros, memoria, direccionInicio, flags);
+    const resultado = ejecutarUnPaso(registros, memoria, direccionInicio, flags, ioPorts);
 
     if (resultado.panel) {
       setPanel(resultado.panel);
@@ -508,24 +559,31 @@ function App() {
       pc: toHex(resultado.pc, 4),
     });
     setFlags(resultado.flags);
+    setIoPorts(resultado.io);
     setResaltarEjecucion(true);
     setContinuarEnEjecucion(modoPasoAPaso && !resultado.halted);
     setCodigo((prev) => (prev ? resaltarLineaCodigo(prev, resultado.pc) : prev));
     setMensaje(resultado.mensaje || `Paso 1 desde 0x${toHex(direccionInicio, 4)}.`);
+
+    if (resultado.halted) {
+      notificarFinPrograma('Ejecucion finalizada (HALT).');
+    }
 
     if (!modoPasoAPaso && !resultado.halted) {
       let regsActual = resultado.registros;
       let memActual = resultado.memoria;
       let pcActual = resultado.pc;
       let flagsActual = resultado.flags;
+      let ioActual = resultado.io;
 
       setAutoEjecutando(true);
       autoRunRef.current = window.setInterval(() => {
-        const pasoAuto = ejecutarUnPaso(regsActual, memActual, pcActual, flagsActual);
+        const pasoAuto = ejecutarUnPaso(regsActual, memActual, pcActual, flagsActual, ioActual);
         regsActual = pasoAuto.registros;
         memActual = pasoAuto.memoria;
         pcActual = pasoAuto.pc;
         flagsActual = pasoAuto.flags;
+        ioActual = pasoAuto.io;
 
         if (pasoAuto.panel) {
           setPanel(pasoAuto.panel);
@@ -540,12 +598,14 @@ function App() {
           pc: toHex(pasoAuto.pc, 4),
         });
         setFlags(pasoAuto.flags);
+        setIoPorts(pasoAuto.io);
         setCodigo((prev) => (prev ? resaltarLineaCodigo(prev, pasoAuto.pc) : prev));
 
         if (pasoAuto.halted) {
           detenerAutoEjecucion();
           setContinuarEnEjecucion(false);
           setMensaje(pasoAuto.mensaje || 'Ejecucion finalizada.');
+          notificarFinPrograma('Ejecucion finalizada (HALT).');
         }
       }, 500);
     }
@@ -567,11 +627,12 @@ function App() {
       setContinuarEnEjecucion(false);
       setResaltarEjecucion(false);
       setFlags({ z: false, s: false, c: false, v: false });
+      setIoPorts(crearPuertosBase(0));
       setVisorDisplay({ op1: '0000', op2: '0000' });
       setExecDisplay({ ir: '0000', pc: '0000' });
-      setIp2Hex('0000');
       setCodigo('');
       setMensaje('');
+      setModalFin({ abierto: false, texto: '' });
       setPanel({ pc: '1', ir: '0000', op1: '----', op2: '----' });
       return;
     }
@@ -583,7 +644,7 @@ function App() {
 
     setEncendido(true);
     setModoPasoAPaso(true);
-    setIp2Hex(generarHexAleatorio());
+    setIoPorts(crearPuertosAleatorios());
     setRegistros(regsIniciales);
     setMemoria(memAleatorios);
     setPaginaMemoria(0);
@@ -596,6 +657,7 @@ function App() {
     setVisorDisplay({ op1: toHex(pcInicial, 4), op2: toHex(memAleatorios[pcInicial] ?? 0, 4) });
     setExecDisplay({ ir: '0000', pc: '0000' });
     setCodigo('');
+    setModalFin({ abierto: false, texto: '' });
     setPanel(obtenerPanel(pcInicial, memAleatorios[pcInicial], regsIniciales, memAleatorios));
     setMensaje('ON: simulador iniciado.');
   };
@@ -659,10 +721,21 @@ function App() {
     setMensaje(`Mem[H${toHex(index, 4)}] actualizada a 0x${toHex(valor, 4)}.`);
   };
 
+  const toggleFlag = (key) => {
+    if (!encendido) {
+      return;
+    }
+
+    setFlags((prev) => ({
+      ...prev,
+      [key]: !prev[key],
+    }));
+  };
+
   const apagado = !encendido;
 
   return (
-    <main className="min-h-screen bg-slate-950 px-4 py-8 text-slate-100 md:px-8">
+    <main className="min-h-screen bg-slate-950 px-100 py-1 text-slate-100 md:px-8">
       <div className="mx-auto max-w-7xl space-y-6">
         <input
           ref={fileInputRef}
@@ -685,6 +758,7 @@ function App() {
           modoCarga={modoCarga}
           direccionInput={direccionInput}
           flags={flags}
+          onToggleFlag={toggleFlag}
           onToggleEncendido={toggleEncendido}
           onTogglePasoAPaso={() => {
             detenerAutoEjecucion();
@@ -698,7 +772,7 @@ function App() {
           onEjecutar={ejecutarPrograma}
         />
 
-        <section className={`grid gap-6 xl:grid-cols-[1fr_2fr_1fr] transition-opacity ${apagado ? 'pointer-events-none opacity-30' : ''}`}>
+        <section className={`grid gap-6 xl:grid-cols-[1fr_1.7fr_1.3fr] transition-opacity ${apagado ? 'pointer-events-none opacity-30' : ''}`}>
           <RegistersPanel
             registros={registros}
             filasRegistros={filasRegistros}
@@ -721,16 +795,35 @@ function App() {
             }
           />
 
-          <ControlCodePanel
-            ip2Hex={ip2Hex}
-            visualOp1={visualOp1}
-            modoCarga={modoCarga}
-            visualOp2={visualOp2}
-            apagado={apagado}
-          />
+          <div className="w-full max-w-md xl:justify-self-center">
+            <ControlCodePanel
+              ipPorts={ioPorts.ip ?? []}
+              opPorts={ioPorts.op ?? []}
+              apagado={apagado}
+            />
+          </div>
         </section>
 
         <ToastMessage mensaje={mensaje} />
+        {modalFin.abierto ? (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-950/70 px-4">
+            <div className="w-full max-w-md rounded-xl border border-cyan-400/40 bg-slate-900 p-5 shadow-[0_20px_60px_-20px_rgba(34,211,238,0.5)]">
+              <h3 className="text-lg font-semibold text-cyan-200">Programa finalizado</h3>
+              <p className="mt-2 text-sm text-slate-200">
+                {modalFin.texto}
+              </p>
+              <div className="mt-4 flex justify-end">
+                <button
+                  type="button"
+                  onClick={() => setModalFin({ abierto: false, texto: '' })}
+                  className="rounded-md bg-cyan-500 px-4 py-2 text-sm font-semibold text-slate-900 transition hover:bg-cyan-400"
+                >
+                  Aceptar
+                </button>
+              </div>
+            </div>
+          </div>
+        ) : null}
         <HexEditModal
           abierto={editorHex.abierto}
           titulo={editorHex.titulo}

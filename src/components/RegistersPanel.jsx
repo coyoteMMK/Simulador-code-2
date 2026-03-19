@@ -7,14 +7,6 @@ export default function RegistersPanel({ registros, filasRegistros, onEditRegist
       <h2 className="mb-3 text-lg font-semibold">Registros</h2>
       <div className="max-h-[28rem] overflow-auto rounded-lg border border-slate-700">
         <table className="w-full border-collapse text-center text-sm">
-          <thead className="bg-slate-800 text-slate-100">
-            <tr>
-              <th className="border border-slate-700 px-3 py-2">Registro</th>
-              <th className="border border-slate-700 px-3 py-2">Valor</th>
-              <th className="border border-slate-700 px-3 py-2">Registro</th>
-              <th className="border border-slate-700 px-3 py-2">Valor</th>
-            </tr>
-          </thead>
           <tbody>
             {filasRegistros.map(([izq, der], fila) => (
               <tr key={fila} className="odd:bg-slate-900 even:bg-slate-800/60">

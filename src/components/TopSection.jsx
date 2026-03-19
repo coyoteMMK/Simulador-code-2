@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import HexDisplay from './HexDisplay';
 import HexInput from './HexInput';
 
@@ -14,6 +15,7 @@ export default function TopSection({
   modoCarga,
   direccionInput,
   flags,
+  onToggleFlag,
   onToggleEncendido,
   onTogglePasoAPaso,
   onSelectModoCarga,
@@ -22,9 +24,31 @@ export default function TopSection({
   onContinuar,
   onEjecutar,
 }) {
+  const codigoRef = useRef(null);
+
+  useEffect(() => {
+    const area = codigoRef.current;
+    if (!area || !codigo) {
+      return;
+    }
+
+    const lineas = codigo.split('\n');
+    const idx = lineas.findIndex((linea) => linea.startsWith('>>>'));
+
+    if (idx < 0) {
+      return;
+    }
+
+    const estilo = window.getComputedStyle(area);
+    const lineHeight = parseFloat(estilo.lineHeight) || 20;
+    const objetivo = idx * lineHeight - area.clientHeight / 2 + lineHeight / 2;
+    area.scrollTop = Math.max(0, objetivo);
+  }, [codigo]);
+
   return (
     <section className="grid gap-4 rounded-2xl border border-slate-800 bg-gradient-to-b from-slate-900/80 to-slate-950 p-4 shadow-[0_12px_40px_-20px_rgba(34,211,238,0.25)] xl:grid-cols-2 xl:items-stretch">
       <textarea
+        ref={codigoRef}
         value={codigo}
         readOnly
         placeholder="Instrucciones generadas por la memoria se mostraran aqui..."
@@ -132,14 +156,18 @@ export default function TopSection({
                     return (
                       <div key={item.key} className="flex flex-col items-center gap-1">
                         <span className={`text-[11px] font-semibold tracking-wide ${apagado ? 'text-slate-500' : 'text-indigo-300'}`}>{item.label}</span>
-                        <span
+                        <button
+                          type="button"
+                          disabled={apagado}
+                          onClick={() => onToggleFlag(item.key)}
+                          aria-label={`Toggle flag ${item.label}`}
                           className={`h-3.5 w-3.5 rounded-full border transition-all ${
                             activa
                               ? 'border-lime-300 bg-lime-400 shadow-[0_0_10px_1px_rgba(163,230,53,0.8)]'
                               : apagado
                                 ? 'border-slate-700 bg-slate-900'
                                 : 'border-slate-600 bg-slate-800'
-                          }`}
+                          } ${apagado ? 'cursor-not-allowed' : 'cursor-pointer'}`}
                         />
                       </div>
                     );

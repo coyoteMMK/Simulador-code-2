@@ -15,7 +15,7 @@ export function desensamblarPalabra(word) {
   const rs = `R${r2.toString(16).toUpperCase()}`;
   const ra = `R${r3.toString(16).toUpperCase()}`;
   const v = `H'${val8.toString(16).toUpperCase().padStart(2, '0')}`;
-  const condiciones = ['AL', 'Z', 'NZ', 'C', 'NC', 'S', 'NS', 'V', 'NV', 'HI', 'LS', 'GE', 'LT', 'GT', 'LE', 'NVL'];
+  const condiciones = ['R', 'Z', 'S', 'C', 'V'];
 
   switch (opcode) {
     case 0x0:
@@ -26,18 +26,34 @@ export function desensamblarPalabra(word) {
       return `LLI ${rx}, ${v}`;
     case 0x3:
       return `LHI ${rx}, ${v}`;
+    case 0x4:
+      return `IN ${rx}, ${v}`;
+    case 0x5:
+      return `OUT ${v}, ${rx}`;
     case 0x6:
       return `ADDS ${rx}, ${rs}, ${ra}`;
     case 0x7:
       return `SUBS ${rx}, ${rs}, ${ra}`;
+    case 0x8:
+      return `NAND ${rx}, ${rs}, ${ra}`;
+    case 0x9:
+      return `SHL ${rx}`;
+    case 0xa:
+      return `SHR ${rx}`;
+    case 0xb:
+      return `SHRA ${rx}`;
     case 0xc:
-      if (r1 === 0x3) {
-        return 'BC';
+      if (r1 <= 0x4) {
+        return `B${condiciones[r1]}`;
       }
-      if (r1 === 0x0) {
-        return 'BR';
+      return `B- ${toHex(r1, 1)}`;
+    case 0xd:
+      if (r1 <= 0x4) {
+        return `CALL${condiciones[r1]}`;
       }
-      return `B- ${condiciones[r1] ?? toHex(r1, 1)}`;
+      return `CALL- ${toHex(r1, 1)}`;
+    case 0xe:
+      return 'RET';
     case 0xf:
       return 'HALT';
     default:
@@ -83,9 +99,12 @@ export function obtenerPanel(pc, palabra, registros, memoria) {
     const addr = (registros[0xd] + val8) & 0xffff;
     op1 = toHex(addr, 4);
     op2 = opcode === 0x0 ? toHex(memoria[addr] ?? 0, 4) : toHex(registros[r1], 4);
-  } else if (opcode === 0x6 || opcode === 0x7) {
+  } else if (opcode === 0x6 || opcode === 0x7 || opcode === 0x8) {
     op1 = toHex(registros[r2], 4);
     op2 = toHex(registros[r3], 4);
+  } else if (opcode === 0x9 || opcode === 0xa || opcode === 0xb) {
+    op1 = toHex(registros[r1], 4);
+    op2 = '----';
   }
 
   return {
@@ -96,7 +115,13 @@ export function obtenerPanel(pc, palabra, registros, memoria) {
   };
 }
 
-export function ejecutarUnPaso(registrosBase, memoriaBase, pcBase, flagsBase = { z: false, s: false, c: false, v: false }) {
+export function ejecutarUnPaso(
+  registrosBase,
+  memoriaBase,
+  pcBase,
+  flagsBase = { z: false, s: false, c: false, v: false },
+  ioBase = { ip: Array(256).fill(0), op: Array(256).fill(0) },
+) {
 
   const getZS = (valor) => ({
     z: (valor & 0xffff) === 0,
@@ -118,6 +143,12 @@ export function ejecutarUnPaso(registrosBase, memoriaBase, pcBase, flagsBase = {
     v: (((a ^ b) & (a ^ resultado)) & 0x8000) !== 0,
   });
 
+  const logicFlags = (resultado, carry = false) => ({
+    ...getZS(resultado),
+    c: Boolean(carry),
+    v: false,
+  });
+
   let flags = flagsBase;
 
   const cumpleCondicion = (cnd, estado) => {
@@ -127,31 +158,11 @@ export function ejecutarUnPaso(registrosBase, memoriaBase, pcBase, flagsBase = {
       case 0x1:
         return estado.z;
       case 0x2:
-        return !estado.z;
+        return estado.s;
       case 0x3:
         return estado.c;
       case 0x4:
-        return !estado.c;
-      case 0x5:
-        return estado.s;
-      case 0x6:
-        return !estado.s;
-      case 0x7:
         return estado.v;
-      case 0x8:
-        return !estado.v;
-      case 0x9:
-        return estado.c && !estado.z;
-      case 0xa:
-        return !estado.c || estado.z;
-      case 0xb:
-        return estado.s === estado.v;
-      case 0xc:
-        return estado.s !== estado.v;
-      case 0xd:
-        return !estado.z && estado.s === estado.v;
-      case 0xe:
-        return estado.z || estado.s !== estado.v;
       default:
         return false;
     }
@@ -166,6 +177,7 @@ export function ejecutarUnPaso(registrosBase, memoriaBase, pcBase, flagsBase = {
       mensaje: 'Fin de programa.',
       panel: null,
       flags,
+      io: ioBase,
     };
   }
 
@@ -180,6 +192,7 @@ export function ejecutarUnPaso(registrosBase, memoriaBase, pcBase, flagsBase = {
 
   const nuevosRegistros = [...registrosBase];
   let nuevaMemoria = memoriaBase;
+  let nuevoIo = ioBase;
   let siguientePc = (pcBase + 1) & 0xffff;
 
   switch (opcode) {
@@ -200,6 +213,16 @@ export function ejecutarUnPaso(registrosBase, memoriaBase, pcBase, flagsBase = {
     case 0x3:
       nuevosRegistros[r1] = ((val8 & 0x00ff) << 8) | (nuevosRegistros[r1] & 0x00ff);
       break;
+    case 0x4:
+      nuevosRegistros[r1] = (ioBase.ip?.[val8] ?? 0) & 0xffff;
+      break;
+    case 0x5:
+      nuevoIo = {
+        ...ioBase,
+        op: [...(ioBase.op ?? Array(256).fill(0))],
+      };
+      nuevoIo.op[val8] = nuevosRegistros[r1] & 0xffff;
+      break;
     case 0x6:
     {
       const opA = nuevosRegistros[r2] & 0xffff;
@@ -218,11 +241,63 @@ export function ejecutarUnPaso(registrosBase, memoriaBase, pcBase, flagsBase = {
       flags = subFlags(opA, opB, resultado);
       break;
     }
+    case 0x8:
+    {
+      const opA = nuevosRegistros[r2] & 0xffff;
+      const opB = nuevosRegistros[r3] & 0xffff;
+      const resultado = (~(opA & opB)) & 0xffff;
+      nuevosRegistros[r1] = resultado;
+      flags = logicFlags(resultado, false);
+      break;
+    }
+    case 0x9:
+    {
+      const op = nuevosRegistros[r1] & 0xffff;
+      const carry = ((op >> 15) & 1) === 1;
+      const resultado = (op << 1) & 0xffff;
+      nuevosRegistros[r1] = resultado;
+      flags = logicFlags(resultado, carry);
+      break;
+    }
+    case 0xa:
+    {
+      const op = nuevosRegistros[r1] & 0xffff;
+      const carry = (op & 1) === 1;
+      const resultado = (op >>> 1) & 0x7fff;
+      nuevosRegistros[r1] = resultado;
+      flags = logicFlags(resultado, carry);
+      break;
+    }
+    case 0xb:
+    {
+      const op = nuevosRegistros[r1] & 0xffff;
+      const carry = (op & 1) === 1;
+      const resultado = ((op >> 1) | (op & 0x8000)) & 0xffff;
+      nuevosRegistros[r1] = resultado;
+      flags = logicFlags(resultado, carry);
+      break;
+    }
     case 0xc:
       if (cumpleCondicion(r1, flags)) {
         siguientePc = nuevosRegistros[0xd] & 0xffff;
       }
       break;
+    case 0xd:
+      if (cumpleCondicion(r1, flags)) {
+        const spNuevo = (nuevosRegistros[0xe] - 1) & 0xffff;
+        nuevosRegistros[0xe] = spNuevo;
+        nuevaMemoria = [...memoriaBase];
+        nuevaMemoria[spNuevo] = siguientePc & 0xffff;
+        siguientePc = nuevosRegistros[0xd] & 0xffff;
+      }
+      break;
+    case 0xe: {
+      const spActual = nuevosRegistros[0xe] & 0xffff;
+      const retorno = memoriaBase[spActual] ?? 0;
+      siguientePc = retorno & 0xffff;
+      nuevosRegistros[0xe] = (spActual + 1) & 0xffff;
+      break;
+    }
     case 0xf:
       return {
         registros: nuevosRegistros,
@@ -232,6 +307,7 @@ export function ejecutarUnPaso(registrosBase, memoriaBase, pcBase, flagsBase = {
         mensaje: 'HALT.',
         panel,
         flags,
+        io: nuevoIo,
       };
     default:
       break;
@@ -245,16 +321,20 @@ export function ejecutarUnPaso(registrosBase, memoriaBase, pcBase, flagsBase = {
     mensaje: '',
     panel,
     flags,
+    io: nuevoIo,
   };
 }
 
 export function randInstruccion() {
-  const opcodes = [0x0, 0x1, 0x6, 0x7];
+  const opcodes = [0x0, 0x1, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xa, 0xb];
   const op = opcodes[Math.floor(Math.random() * opcodes.length)];
   const r1 = Math.floor(Math.random() * 16);
-  if (op === 0x0 || op === 0x1) {
+  if (op === 0x0 || op === 0x1 || op === 0x4 || op === 0x5) {
     const val8 = Math.floor(Math.random() * 256);
     return (op << 12) | (r1 << 8) | val8;
+  }
+  if (op === 0x9 || op === 0xa || op === 0xb) {
+    return (op << 12) | (r1 << 8);
   }
   const r2 = Math.floor(Math.random() * 16);
   const r3 = Math.floor(Math.random() * 16);

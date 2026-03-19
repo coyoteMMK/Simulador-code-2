@@ -64,7 +64,7 @@ export default function MemoryPanel({
   return (
     <article className="rounded-xl border border-slate-800 bg-slate-900/70 p-4">
       <div className="mb-3 flex items-center justify-between">
-        <h2 className="text-lg font-semibold">Memoria CODE (64K)</h2>
+        <h2 className="text-lg font-semibold">Memoria</h2>
         <div className="flex items-center gap-2 text-sm">
           <button
             type="button"
@@ -88,12 +88,6 @@ export default function MemoryPanel({
 
       <div ref={scrollRef} className="max-h-[28rem] overflow-auto rounded-lg border border-slate-700">
         <table className="w-full border-collapse text-center text-sm">
-          <thead className="sticky top-0 bg-slate-800 text-slate-100">
-            <tr>
-              <th className="border border-slate-700 px-3 py-2">Direccion</th>
-              <th className="border border-slate-700 px-3 py-2">Valor</th>
-            </tr>
-          </thead>
           <tbody>
             {bloqueMemoria.map((valor, i) => {
               const indexAbsoluto = inicio + i;
