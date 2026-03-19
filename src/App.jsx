@@ -678,6 +678,19 @@ function App() {
     });
   };
 
+  const abrirEditorPuertoEntrada = (index) => {
+    const valorActual = ioPorts.ip?.[index] ?? 0;
+    setEditorHex({
+      abierto: true,
+      tipo: 'puerto-ip',
+      index,
+      titulo: `Editar puerto IP${toHex(index, 2)}`,
+      etiqueta: 'Valor HEX',
+      valor: `0x${toHex(valorActual, 4)}`,
+      error: '',
+    });
+  };
+
   const confirmarEditorHex = () => {
     const texto = editorHex.valor.trim();
     const limpio = texto.toLowerCase().startsWith('0x') ? texto.slice(2) : texto;
@@ -700,6 +713,17 @@ function App() {
         actualizarVisor('registro', pc, registroVisualizado, memoria, nuevos);
       }
       setMensaje(`r${editorHex.index.toString(16).toUpperCase()} actualizado a 0x${toHex(valor, 4)}.`);
+      cerrarEditorHex();
+      return;
+    }
+
+    if (editorHex.tipo === 'puerto-ip') {
+      setIoPorts((prev) => {
+        const ip = [...(prev.ip ?? Array(256).fill(0))];
+        ip[editorHex.index] = valor;
+        return { ...prev, ip };
+      });
+      setMensaje(`IP${toHex(editorHex.index, 2)} actualizado a 0x${toHex(valor, 4)}.`);
       cerrarEditorHex();
       return;
     }
@@ -800,6 +824,7 @@ function App() {
               ipPorts={ioPorts.ip ?? []}
               opPorts={ioPorts.op ?? []}
               apagado={apagado}
+              onEditIp={abrirEditorPuertoEntrada}
             />
           </div>
         </section>

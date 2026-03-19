@@ -18,6 +18,7 @@ export default function MemoryPanel({
   const [ediciones, setEdiciones] = useState({});
   const scrollRef = useRef(null);
   const filaActualRef = useRef(null);
+  const inputRefs = useRef({});
 
   useEffect(() => {
     if (!resaltarEjecucion) {
@@ -44,8 +45,8 @@ export default function MemoryPanel({
   const textoCelda = (index, valorActual) =>
     ediciones[index] ?? toHex(valorActual, 4);
 
-  const confirmarEdicion = (index, valorActual) => {
-    const texto = textoCelda(index, valorActual).trim();
+  const confirmarEdicion = (index, valorActual, textoForzado) => {
+    const texto = (textoForzado ?? textoCelda(index, valorActual)).trim();
     const sinPrefijo = texto.toLowerCase().startsWith('0x') ? texto.slice(2) : texto;
 
     if (!/^[0-9a-fA-F]{1,4}$/.test(sinPrefijo)) {
@@ -59,6 +60,20 @@ export default function MemoryPanel({
 
     // Normaliza visualmente a 4 hex
     setEdiciones((prev) => ({ ...prev, [index]: toHex(valor, 4) }));
+  };
+
+  const enfocarSiguienteCelda = (indexActual) => {
+    const siguiente = indexActual + 1;
+    if (siguiente >= fin) {
+      return;
+    }
+
+    window.requestAnimationFrame(() => {
+      const input = inputRefs.current[siguiente];
+      if (input) {
+        input.focus();
+      }
+    });
   };
 
   return (
@@ -107,12 +122,24 @@ export default function MemoryPanel({
                     <HexInput
                       value={ediciones[indexAbsoluto] ?? toHex(valor, 4)}
                       apagado={apagado}
-                      onChange={(nuevoValor) =>
+                      inputRef={(el) => {
+                        if (el) {
+                          inputRefs.current[indexAbsoluto] = el;
+                        }
+                      }}
+                      onChange={(nuevoValor) => {
+                        const valorPrevio = ediciones[indexAbsoluto] ?? toHex(valor, 4);
+
                         setEdiciones((prev) => ({
                           ...prev,
                           [indexAbsoluto]: nuevoValor,
-                        }))
-                      }
+                        }));
+
+                        if (valorPrevio.length < 4 && nuevoValor.length === 4) {
+                          confirmarEdicion(indexAbsoluto, valor, nuevoValor);
+                          enfocarSiguienteCelda(indexAbsoluto);
+                        }
+                      }}
                       onBlur={() => confirmarEdicion(indexAbsoluto, valor)}
                       onKeyDown={(e) => {
                         if (e.key === 'Enter') {

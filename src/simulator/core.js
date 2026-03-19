@@ -74,15 +74,36 @@ export function resaltarLineaCodigo(codigo, pc) {
 export function actualizarLineaCodigo(codigo, index, instruccion) {
   const prefijo = `[${toHex(index, 4)}]:`;
   const linea = `${prefijo} ${instruccion}`;
-  const lineas = codigo ? codigo.split('\n') : [];
-  const existe = lineas.findIndex((l) => l.startsWith(prefijo));
+  const lineasBase = (codigo ? codigo.split('\n') : []).map((l) => l.replace(/^>>>\s*/, ''));
+  const existe = lineasBase.findIndex((l) => l.startsWith(prefijo));
 
   if (existe >= 0) {
-    lineas[existe] = linea;
-    return lineas.join('\n');
+    lineasBase[existe] = linea;
+  } else {
+    lineasBase.push(linea);
   }
 
-  return [...lineas, linea].join('\n');
+  const extraerDireccion = (l) => {
+    const match = l.match(/^\[([0-9A-Fa-f]{4})\]:/);
+    return match ? parseInt(match[1], 16) : null;
+  };
+
+  lineasBase.sort((a, b) => {
+    const da = extraerDireccion(a);
+    const db = extraerDireccion(b);
+    if (da === null && db === null) {
+      return 0;
+    }
+    if (da === null) {
+      return 1;
+    }
+    if (db === null) {
+      return -1;
+    }
+    return da - db;
+  });
+
+  return lineasBase.join('\n');
 }
 
 export function obtenerPanel(pc, palabra, registros, memoria) {

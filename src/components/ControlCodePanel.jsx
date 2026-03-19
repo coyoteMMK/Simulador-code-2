@@ -7,7 +7,7 @@ const PAGE_SIZE = 3;
 const toHex2 = (value) => (value & 0xff).toString(16).toUpperCase().padStart(2, '0');
 const toHex4 = (value) => (value & 0xffff).toString(16).toUpperCase().padStart(4, '0');
 
-export default function ControlCodePanel({ ipPorts = [], opPorts = [], apagado }) {
+export default function ControlCodePanel({ ipPorts = [], opPorts = [], apagado, onEditIp }) {
   const [ipPage, setIpPage] = useState(0);
   const [opPage, setOpPage] = useState(0);
   const totalPages = Math.ceil(TOTAL_PORTS / PAGE_SIZE);
@@ -56,7 +56,14 @@ export default function ControlCodePanel({ ipPorts = [], opPorts = [], apagado }
               {puertosIpVisibles.map((puerto) => (
                 <tr key={`ip-${puerto}`} className="odd:bg-slate-900 even:bg-slate-800/60">
                   <td className="border border-slate-700 px-2 py-2 font-medium">IP{toHex2(puerto)}</td>
-                  <td className="border border-slate-700 px-2 py-2">
+                  <td
+                    className={`border border-slate-700 px-2 py-2 ${apagado ? '' : 'cursor-pointer hover:bg-cyan-900/40'}`}
+                    onClick={() => {
+                      if (!apagado) {
+                        onEditIp?.(puerto);
+                      }
+                    }}
+                  >
                     <HexDisplay value={toHex4(ipPorts[puerto] ?? 0)} apagado={apagado} />
                   </td>
                 </tr>

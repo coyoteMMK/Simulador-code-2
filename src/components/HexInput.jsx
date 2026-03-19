@@ -4,6 +4,8 @@ export default function HexInput({
   onChange,
   onBlur,
   onKeyDown,
+  onFocus,
+  inputRef,
   disabled = false,
   apagado = false,
   placeholder = '0000',
@@ -11,6 +13,7 @@ export default function HexInput({
 }) {
   return (
     <input
+      ref={inputRef}
       id={id}
       value={value}
       onChange={(e) => {
@@ -18,7 +21,38 @@ export default function HexInput({
         onChange(limpio);
       }}
       onBlur={onBlur}
-      onKeyDown={onKeyDown}
+      onKeyDown={(e) => {
+        const teclaHex = /^[0-9a-fA-F]$/.test(e.key);
+        const modificador = e.ctrlKey || e.metaKey || e.altKey;
+
+        // Si hay 4 digitos, escribir encima reemplaza el caracter en la posicion del cursor.
+        if (teclaHex && !modificador && value.length === 4) {
+          const inicio = e.currentTarget.selectionStart ?? 0;
+          const fin = e.currentTarget.selectionEnd ?? inicio;
+          const pos = Math.max(0, Math.min(inicio, 3));
+
+          e.preventDefault();
+
+          let nuevoValor;
+          if (fin > inicio) {
+            const base = value.slice(0, inicio) + e.key.toUpperCase() + value.slice(fin);
+            nuevoValor = base.padEnd(4, '0').slice(0, 4);
+          } else {
+            nuevoValor = value.slice(0, pos) + e.key.toUpperCase() + value.slice(pos + 1);
+          }
+
+          onChange(nuevoValor);
+
+          window.requestAnimationFrame(() => {
+            const siguiente = Math.min(pos + 1, 4);
+            e.currentTarget.setSelectionRange(siguiente, siguiente);
+          });
+          return;
+        }
+
+        onKeyDown?.(e);
+      }}
+      onFocus={onFocus}
       disabled={disabled}
       placeholder={placeholder}
       maxLength={4}
