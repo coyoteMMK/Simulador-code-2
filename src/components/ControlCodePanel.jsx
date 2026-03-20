@@ -16,6 +16,7 @@ export default function ControlCodePanel({
   onEditIp,
   onEditIpValue,
   onFormatoInvalido,
+  className = '',
 }) {
   const [ipPage, setIpPage] = useState(0);
   const [opPage, setOpPage] = useState(0);
@@ -114,7 +115,7 @@ export default function ControlCodePanel({
   };
 
   return (
-    <article className="flex h-full min-h-0 flex-col rounded-xl border border-slate-800 bg-slate-900/70 p-4">
+    <article className={`flex h-full min-h-0 flex-col rounded-xl border border-slate-800 bg-slate-900/70 p-4 ${className}`}>
       <h2 className="mb-3 text-center text-lg font-semibold">Control CODE-2</h2>
 
       <div className="grid max-h-[28rem] grid-cols-1 gap-3 overflow-auto xl:max-h-nonex l:min-h-0">

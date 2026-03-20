@@ -895,12 +895,13 @@ function App() {
           onEjecutar={ejecutarPrograma}
         />
         
-        <section className={`grid items-stretch gap-6 xl:h-[31rem] xl:max-h-[32rem] xl:min-h-0 xl:overflow-hidden xl:grid-cols-[1fr_1.7fr_1.3fr] transition-opacity ${apagado ? 'pointer-events-none opacity-30' : ''}`}>
+        <section className={`grid items-stretch gap-6 xl:h-[31rem] xl:max-h-[32rem] xl:min-h-0 xl:overflow-hidden xl:grid-cols-[1fr_1.7fr_1.3fr] transition-opacity`}>
           <RegistersPanel
             registros={registros}
             filasRegistros={filasRegistros}
             onEditRegistro={editarRegistro}
             apagado={apagado}
+            className={apagado ? 'pointer-events-none opacity-30' : ''}
           />
 
           <MemoryPanel
@@ -926,6 +927,7 @@ function App() {
             onEditIp={abrirEditorPuertoEntrada}
             onEditIpValue={editarPuertoEntradaValor}
             onFormatoInvalido={() => setMensaje('Formato invalido. Use HEX de 1 a 4 digitos.')}
+            className={apagado ? 'pointer-events-none opacity-30' : ''}
           />
 
         </section>
