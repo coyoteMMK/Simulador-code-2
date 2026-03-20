@@ -146,10 +146,9 @@ export default function HexInput({
       return;
     }
 
-    // Flecha arriba/abajo: no hacer nada
+    // Flecha arriba/abajo: delegar al contenedor (ej. navegar filas en memoria)
     if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
-      e.preventDefault();
-      return;
+      onKeyDown?.(e);
     }
   };
 
@@ -187,8 +186,8 @@ export default function HexInput({
           return;
         }
 
-        // Si hay 4 digitos, escribir encima reemplaza el caracter en la posicion del cursor.
-        if (teclaHex && !modificador && value.length === 4) {
+        // Escritura hexadecimal: reemplaza/inserta y avanza al siguiente digito.
+        if (teclaHex && !modificador) {
           const inicio = e.currentTarget.selectionStart ?? 0;
           const fin = e.currentTarget.selectionEnd ?? inicio;
           const pos = Math.max(0, Math.min(inicio, 3));
@@ -196,18 +195,37 @@ export default function HexInput({
           e.preventDefault();
 
           let nuevoValor;
-          if (fin > inicio) {
-            const base = value.slice(0, inicio) + e.key.toUpperCase() + value.slice(fin);
-            nuevoValor = base.padEnd(4, '0').slice(0, 4);
+          if (value.length === 4) {
+            if (fin > inicio) {
+              const base = value.slice(0, inicio) + e.key.toUpperCase() + value.slice(fin);
+              nuevoValor = base.padEnd(4, '0').slice(0, 4);
+            } else {
+              nuevoValor = value.slice(0, pos) + e.key.toUpperCase() + value.slice(pos + 1);
+            }
           } else {
-            nuevoValor = value.slice(0, pos) + e.key.toUpperCase() + value.slice(pos + 1);
+            const base = value || '';
+            if (fin > inicio) {
+              nuevoValor = (base.slice(0, inicio) + e.key.toUpperCase() + base.slice(fin)).slice(0, 4);
+            } else if (pos >= base.length) {
+              nuevoValor = (base + e.key.toUpperCase()).slice(0, 4);
+            } else {
+              nuevoValor = (base.slice(0, pos) + e.key.toUpperCase() + base.slice(pos + 1)).slice(0, 4);
+            }
           }
 
           onChange(nuevoValor);
           const siguiente = Math.min(pos + 1, 4);
 
-          if (siguiente < 4) {
-            pendingSelectionRef.current = { start: siguiente, end: siguiente + 1 };
+          if (siguiente < nuevoValor.length) {
+            pendingSelectionRef.current = { start: siguiente, end: Math.min(siguiente + 1, nuevoValor.length) };
+          } else if (siguiente <= nuevoValor.length) {
+            pendingSelectionRef.current = { start: siguiente, end: siguiente };
+          }
+
+          // Mueve el cursor inmediatamente aunque el valor no cambie (ej. escribir el mismo dígito).
+          if (siguiente <= nuevoValor.length) {
+            const finSel = siguiente < nuevoValor.length ? Math.min(siguiente + 1, nuevoValor.length) : siguiente;
+            e.currentTarget.setSelectionRange(siguiente, finSel);
           }
 
           if (pos === 3) {

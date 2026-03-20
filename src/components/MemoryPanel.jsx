@@ -9,6 +9,7 @@ export default function MemoryPanel({
   pc,
   resaltarEjecucion,
   apagado,
+  resetEdicionesToken = 0,
   onEditMemoria,
   onFormatoInvalido,
   onPrev,
@@ -19,6 +20,12 @@ export default function MemoryPanel({
   const scrollRef = useRef(null);
   const filaActualRef = useRef(null);
   const inputRefs = useRef({});
+  const edicionManualRef = useRef({});
+
+  useEffect(() => {
+    setEdiciones({});
+    inputRefs.current = {};
+  }, [resetEdicionesToken]);
 
   useEffect(() => {
     if (!resaltarEjecucion) {
@@ -48,10 +55,30 @@ export default function MemoryPanel({
   const confirmarEdicion = (index, valorActual, textoForzado) => {
     const texto = (textoForzado ?? textoCelda(index, valorActual)).trim();
     const sinPrefijo = texto.toLowerCase().startsWith('0x') ? texto.slice(2) : texto;
+    const valorHexActual = toHex(valorActual, 4);
+    const huboEdicionManual = Boolean(edicionManualRef.current[index]);
+
+    // Si no hubo cambio real, no guardar ni notificar nada.
+    if (/^[0-9a-fA-F]{1,4}$/.test(sinPrefijo)) {
+      const valorSinCambios = parseInt(sinPrefijo, 16) & 0xffff;
+      if (!huboEdicionManual && valorSinCambios === (valorActual & 0xffff)) {
+        setEdiciones((prev) => {
+          if (!(index in prev)) {
+            return prev;
+          }
+          const siguiente = { ...prev };
+          delete siguiente[index];
+          return siguiente;
+        });
+        edicionManualRef.current[index] = false;
+        return;
+      }
+    }
 
     if (!/^[0-9a-fA-F]{1,4}$/.test(sinPrefijo)) {
-      setEdiciones((prev) => ({ ...prev, [index]: toHex(valorActual, 4) }));
+      setEdiciones((prev) => ({ ...prev, [index]: valorHexActual }));
       onFormatoInvalido?.();
+      edicionManualRef.current[index] = false;
       return;
     }
 
@@ -60,6 +87,7 @@ export default function MemoryPanel({
 
     // Normaliza visualmente a 4 hex
     setEdiciones((prev) => ({ ...prev, [index]: toHex(valor, 4) }));
+    edicionManualRef.current[index] = false;
   };
 
   const enfocarSiguienteCelda = (indexActual) => {
@@ -130,20 +158,25 @@ export default function MemoryPanel({
                       }}
                       onChange={(nuevoValor) => {
                         const valorPrevio = ediciones[indexAbsoluto] ?? toHex(valor, 4);
+                        edicionManualRef.current[indexAbsoluto] = true;
 
                         setEdiciones((prev) => ({
                           ...prev,
                           [indexAbsoluto]: nuevoValor,
                         }));
 
-                        if (valorPrevio.length < 4 && nuevoValor.length === 4) {
+                        if (nuevoValor.length === 4) {
                           confirmarEdicion(indexAbsoluto, valor, nuevoValor);
-                          enfocarSiguienteCelda(indexAbsoluto);
+
+                          // Solo avanza automáticamente al completar desde menos de 4 dígitos.
+                          if (valorPrevio.length < 4) {
+                            enfocarSiguienteCelda(indexAbsoluto);
+                          }
                         }
                       }}
                       onBlur={() => confirmarEdicion(indexAbsoluto, valor)}
                       onCursorAfterLastDigit={(nuevoValor) => {
-                        confirmarEdicion(indexAbsoluto, valor, nuevoValor);
+                        // La confirmación ya ocurre en onChange cuando hay 4 dígitos.
                         enfocarSiguienteCelda(indexAbsoluto);
                       }}
                       onKeyDown={(e) => {
@@ -153,6 +186,7 @@ export default function MemoryPanel({
                         }
                         if (e.key === 'Escape') {
                           setEdiciones((prev) => ({ ...prev, [indexAbsoluto]: toHex(valor, 4) }));
+                          edicionManualRef.current[indexAbsoluto] = false;
                           e.currentTarget.blur();
                         }
                         if (e.key === 'ArrowLeft') {
@@ -187,8 +221,34 @@ export default function MemoryPanel({
                             }
                           }
                         }
+                        if (e.key === 'ArrowUp') {
+                          e.preventDefault();
+                          const pos = Math.max(0, Math.min(e.currentTarget.selectionStart ?? 0, 3));
+                          const anterior = indexAbsoluto - 1;
+                          if (anterior >= inicio) {
+                            const inputAnterior = inputRefs.current[anterior];
+                            if (inputAnterior) {
+                              inputAnterior.focus();
+                              inputAnterior.setSelectionRange(pos, pos + 1);
+                            }
+                          }
+                        }
+                        if (e.key === 'ArrowDown') {
+                          e.preventDefault();
+                          const pos = Math.max(0, Math.min(e.currentTarget.selectionStart ?? 0, 3));
+                          const siguiente = indexAbsoluto + 1;
+                          if (siguiente < fin) {
+                            const inputSiguiente = inputRefs.current[siguiente];
+                            if (inputSiguiente) {
+                              inputSiguiente.focus();
+                              inputSiguiente.setSelectionRange(pos, pos + 1);
+                            }
+                          }
+                        }
                       }}
-                      className="mx-auto"
+                      className={`mx-auto !w-[104px] !rounded-md !border-slate-600 !bg-slate-900 !text-center !font-mono !text-base !tracking-wide !shadow-none disabled:!opacity-100 ${
+                        apagado ? '!text-slate-500' : '!text-cyan-200 focus:!border-cyan-400 focus:!shadow-[0_0_0_1px_rgba(34,211,238,0.35)]'
+                      }`}
                     />
                   </td>
                 </tr>

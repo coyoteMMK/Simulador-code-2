@@ -37,17 +37,19 @@ function App() {
   };
 
   const [encendido, setEncendido] = useState(false);
+  const [inicializarAlEncender, setInicializarAlEncender] = useState(true);
   const [modoPasoAPaso, setModoPasoAPaso] = useState(false);
   const [modoCarga, setModoCarga] = useState('direccion');
   const [registroVisualizado, setRegistroVisualizado] = useState(0);
   const [continuarEnEjecucion, setContinuarEnEjecucion] = useState(false);
   const [autoEjecutando, setAutoEjecutando] = useState(false);
+  const [velocidadAutoMs, setVelocidadAutoMs] = useState(500);
   const [resaltarEjecucion, setResaltarEjecucion] = useState(false);
   const [flags, setFlags] = useState({ z: false, s: false, c: false, v: false });
   const [visorDisplay, setVisorDisplay] = useState({ op1: '0000', op2: '0000' });
   const [execDisplay, setExecDisplay] = useState({ ir: '0000', pc: '0000' });
   const [registros, setRegistros] = useState(() => crearRegistrosBase());
-  const [memoria, setMemoria] = useState(() => Array(MEM_SIZE).fill(0));
+  const [memoria, setMemoria] = useState(() => Array.from({ length: MEM_SIZE }, randInstruccion));
   const [paginaMemoria, setPaginaMemoria] = useState(0);
   const [pc, setPc] = useState(0);
   const [codigo, setCodigo] = useState('');
@@ -65,6 +67,7 @@ function App() {
   const [, setPanel] = useState({ pc: '1', ir: '0000', op1: '----', op2: '----' });
   const [direccionInput, setDireccionInput] = useState('0000');
   const [ioPorts, setIoPorts] = useState(() => crearPuertosBase(generarPuertoAleatorio()));
+  const [resetMemoriaEdicionesToken, setResetMemoriaEdicionesToken] = useState(0);
   const autoRunRef = useRef(null);
   const fileInputRef = useRef(null);
 
@@ -485,6 +488,38 @@ function App() {
     fileInputRef.current?.click();
   };
 
+  const inicializarMemoriaAleatoria = () => {
+    if (apagado) {
+      return;
+    }
+
+    detenerAutoEjecucion();
+
+    const nuevaMemoria = Array.from(
+      { length: MEM_SIZE },
+      () => Math.floor(Math.random() * 0x10000) & 0xffff,
+    );
+
+    setMemoria(nuevaMemoria);
+    setPanel(obtenerPanel(pc, nuevaMemoria[pc] ?? 0, registros, nuevaMemoria));
+    setExecDisplay({
+      ir: toHex(nuevaMemoria[pc] ?? 0, 4),
+      pc: toHex(pc, 4),
+    });
+    setContinuarEnEjecucion(false);
+    setResaltarEjecucion(false);
+    setCodigo('');
+    setResetMemoriaEdicionesToken((prev) => prev + 1);
+
+    if (modoCarga === 'direccion') {
+      actualizarVisor('direccion', pc, registroVisualizado, nuevaMemoria, registros);
+    } else {
+      actualizarVisor('registro', pc, registroVisualizado, nuevaMemoria, registros);
+    }
+
+    setMensaje('Memoria inicializada con valores aleatorios.');
+  };
+
   const paso = () => {
     const resultado = ejecutarUnPaso(registros, memoria, pc, flags, ioPorts);
 
@@ -537,6 +572,55 @@ function App() {
     setResaltarEjecucion(false);
     actualizarVisor('registro', pc, siguienteRegistro, memoria, registros);
     setMensaje(`REG -> ${toHex(siguienteRegistro, 4)}`);
+  };
+
+  const cargarValorManual = () => {
+    if (apagado) {
+      return;
+    }
+
+    const texto = direccionInput.trim();
+    const sinPrefijo = texto.toLowerCase().startsWith('0x') ? texto.slice(2) : texto;
+
+    if (!/^[0-9a-fA-F]{1,4}$/.test(sinPrefijo)) {
+      setMensaje('Valor invalido. Use HEX de 1 a 4 digitos.');
+      return;
+    }
+
+    const valor = parseInt(sinPrefijo, 16) & 0xffff;
+
+    if (modoCarga === 'direccion') {
+      const dirActual = parseInt(visualOp1, 16);
+      if (Number.isNaN(dirActual) || dirActual < 0 || dirActual >= MEM_SIZE) {
+        setMensaje('Direccion OP1 invalida para cargar.');
+        return;
+      }
+
+      const nuevaMemoria = [...memoria];
+      nuevaMemoria[dirActual] = valor;
+      const siguiente = (dirActual + 1) & 0xffff;
+
+      setMemoria(nuevaMemoria);
+      setPc(siguiente);
+      setPaginaMemoria(Math.floor(siguiente / TAM_BLOQUE));
+      setPanel(obtenerPanel(siguiente, nuevaMemoria[siguiente] ?? 0, registros, nuevaMemoria));
+      setResaltarEjecucion(false);
+      actualizarVisor('direccion', siguiente, registroVisualizado, nuevaMemoria, registros);
+      setCodigo((prev) => actualizarLineaCodigo(prev, dirActual, desensamblarPalabra(valor)));
+      setMensaje(`Mem[H${toHex(dirActual, 4)}] <- H${toHex(valor, 4)}. Siguiente: H${toHex(siguiente, 4)}.`);
+      return;
+    }
+
+    const regActual = registroVisualizado & 0xf;
+    const nuevosRegistros = [...registros];
+    nuevosRegistros[regActual] = valor;
+    const siguienteReg = (regActual + 1) % 16;
+
+    setRegistros(nuevosRegistros);
+    setRegistroVisualizado(siguienteReg);
+    setResaltarEjecucion(false);
+    actualizarVisor('registro', pc, siguienteReg, memoria, nuevosRegistros);
+    setMensaje(`R${toHex(regActual, 1)} <- H${toHex(valor, 4)}. Siguiente: R${toHex(siguienteReg, 1)}.`);
   };
 
   const ejecutarPrograma = () => {
@@ -607,7 +691,7 @@ function App() {
           setMensaje(pasoAuto.mensaje || 'Ejecucion finalizada.');
           notificarFinPrograma('Ejecucion finalizada (HALT).');
         }
-      }, 500);
+      }, velocidadAutoMs);
     }
   };
 
@@ -640,13 +724,14 @@ function App() {
     const regsIniciales = Array.from({ length: 16 }, (_, i) => i);
     regsIniciales[0xE] = 0xF000;
     const memAleatorios = Array.from({ length: MEM_SIZE }, randInstruccion);
+    const memoriaBase = inicializarAlEncender ? memAleatorios : [...memoria];
     const pcInicial = 0;
 
     setEncendido(true);
     setModoPasoAPaso(true);
     setIoPorts(crearPuertosAleatorios());
     setRegistros(regsIniciales);
-    setMemoria(memAleatorios);
+    setMemoria(memoriaBase);
     setPaginaMemoria(0);
     setPc(pcInicial);
     setModoCarga('direccion');
@@ -654,11 +739,11 @@ function App() {
     setContinuarEnEjecucion(false);
     setResaltarEjecucion(false);
     setFlags({ z: false, s: false, c: false, v: false });
-    setVisorDisplay({ op1: toHex(pcInicial, 4), op2: toHex(memAleatorios[pcInicial] ?? 0, 4) });
+    setVisorDisplay({ op1: toHex(pcInicial, 4), op2: toHex(memoriaBase[pcInicial] ?? 0, 4) });
     setExecDisplay({ ir: '0000', pc: '0000' });
     setCodigo('');
     setModalFin({ abierto: false, texto: '' });
-    setPanel(obtenerPanel(pcInicial, memAleatorios[pcInicial], regsIniciales, memAleatorios));
+    setPanel(obtenerPanel(pcInicial, memoriaBase[pcInicial], regsIniciales, memoriaBase));
     setMensaje('ON: simulador iniciado.');
   };
 
@@ -745,6 +830,15 @@ function App() {
     setMensaje(`Mem[H${toHex(index, 4)}] actualizada a 0x${toHex(valor, 4)}.`);
   };
 
+  const editarPuertoEntradaValor = (index, valor) => {
+    setIoPorts((prev) => {
+      const ip = [...(prev.ip ?? Array(256).fill(0))];
+      ip[index] = valor & 0xffff;
+      return { ...prev, ip };
+    });
+    setMensaje(`IP${toHex(index, 2)} actualizada a 0x${toHex(valor, 4)}.`);
+  };
+
   const toggleFlag = (key) => {
     if (!encendido) {
       return;
@@ -789,9 +883,15 @@ function App() {
             setModoPasoAPaso((prev) => !prev);
             setContinuarEnEjecucion(false);
           }}
+          inicializarAlEncender={inicializarAlEncender}
+          onToggleInicializarAlEncender={() => setInicializarAlEncender((prev) => !prev)}
           onSelectModoCarga={seleccionarModoCarga}
           onDireccionInputChange={(nuevoValor) => setDireccionInput(nuevoValor)}
+          velocidadAutoMs={velocidadAutoMs}
+          onVelocidadAutoChange={setVelocidadAutoMs}
+          onCargar={cargarValorManual}
           onCargarPrograma={cargarPrograma}
+          onInicializarMemoria={inicializarMemoriaAleatoria}
           onContinuar={continuarVisualizador}
           onEjecutar={ejecutarPrograma}
         />
@@ -811,6 +911,7 @@ function App() {
             pc={pc}
             resaltarEjecucion={resaltarEjecucion}
             apagado={apagado}
+            resetEdicionesToken={resetMemoriaEdicionesToken}
             onEditMemoria={editarMemoria}
             onFormatoInvalido={() => setMensaje('Formato invalido. Use HEX de 1 a 4 digitos.')}
             onPrev={() => setPaginaMemoria((p) => Math.max(0, p - 1))}
@@ -825,6 +926,8 @@ function App() {
               opPorts={ioPorts.op ?? []}
               apagado={apagado}
               onEditIp={abrirEditorPuertoEntrada}
+              onEditIpValue={editarPuertoEntradaValor}
+              onFormatoInvalido={() => setMensaje('Formato invalido. Use HEX de 1 a 4 digitos.')}
             />
           </div>
         </section>
