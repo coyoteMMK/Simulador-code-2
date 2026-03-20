@@ -150,7 +150,7 @@ export default function MemoryPanel({
                   >
                     <HexInput
                       value={ediciones[indexAbsoluto] ?? toHex(valor, 4)}
-                      apagado={apagado}
+                      apagado={false}
                       inputRef={(el) => {
                         if (el) {
                           inputRefs.current[indexAbsoluto] = el;
