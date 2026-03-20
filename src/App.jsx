@@ -702,7 +702,6 @@ function App() {
       setEncendido(false);
       setEditorHex((prev) => ({ ...prev, abierto: false, error: '' }));
       setRegistros(crearRegistrosBase());
-      setMemoria(Array(MEM_SIZE).fill(0));
       setPaginaMemoria(0);
       setPc(0);
       setModoPasoAPaso(false);
