@@ -3,9 +3,9 @@ import HexDisplay from './HexDisplay';
 
 export default function RegistersPanel({ registros, filasRegistros, onEditRegistro, apagado }) {
   return (
-    <article className="rounded-xl border border-slate-800 bg-slate-900/70 p-4">
+    <article className="flex h-full min-h-0 flex-col rounded-xl border border-slate-800 bg-slate-900/70 p-4">
       <h2 className="mb-3 text-lg font-semibold">Registros</h2>
-      <div className="max-h-[28rem] overflow-auto rounded-lg border border-slate-700">
+      <div className="max-h-[28rem] overflow-auto rounded-lg border border-slate-700 xl:max-h-none xl:min-h-0">
         <table className="w-full border-collapse text-center text-sm">
           <tbody>
             {filasRegistros.map(([izq, der], fila) => (

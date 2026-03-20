@@ -114,10 +114,10 @@ export default function ControlCodePanel({
   };
 
   return (
-    <article className="rounded-xl border border-slate-800 bg-slate-900/70 p-4">
+    <article className="flex h-full min-h-0 flex-col rounded-xl border border-slate-800 bg-slate-900/70 p-4">
       <h2 className="mb-3 text-center text-lg font-semibold">Control CODE-2</h2>
 
-      <div className="grid gap-3 grid-cols-1">
+      <div className="grid max-h-[28rem] grid-cols-1 gap-3 overflow-auto xl:max-h-nonex l:min-h-0">
         <div className="rounded-lg border border-slate-700">
           <div className="flex items-center justify-center gap-2 border-b border-slate-700 px-2 py-1 text-xs text-slate-300">
             <button

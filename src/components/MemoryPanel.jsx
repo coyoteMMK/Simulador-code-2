@@ -106,7 +106,7 @@ export default function MemoryPanel({
   };
 
   return (
-    <article className="rounded-xl border border-slate-800 bg-slate-900/70 p-4">
+    <article className="flex h-full min-h-0 flex-col rounded-xl border border-slate-800 bg-slate-900/70 p-4">
       <div className="mb-3 flex items-center justify-between">
         <h2 className="text-lg font-semibold">Memoria</h2>
         <div className="flex items-center gap-2 text-sm">
@@ -130,7 +130,7 @@ export default function MemoryPanel({
         </div>
       </div>
 
-      <div ref={scrollRef} className="max-h-[28rem] overflow-auto rounded-lg border border-slate-700">
+      <div ref={scrollRef} className="max-h-[28rem] overflow-auto rounded-lg border border-slate-700 xl:max-h-none  xl:min-h-0">
         <table className="w-full border-collapse text-center text-sm">
           <tbody>
             {bloqueMemoria.map((valor, i) => {

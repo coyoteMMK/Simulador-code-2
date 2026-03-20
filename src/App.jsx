@@ -895,8 +895,8 @@ function App() {
           onContinuar={continuarVisualizador}
           onEjecutar={ejecutarPrograma}
         />
-
-        <section className={`grid gap-6 xl:grid-cols-[1fr_1.7fr_1.3fr] transition-opacity ${apagado ? 'pointer-events-none opacity-30' : ''}`}>
+        
+        <section className={`grid items-stretch gap-6 xl:h-[31rem] xl:max-h-[32rem] xl:min-h-0 xl:overflow-hidden xl:grid-cols-[1fr_1.7fr_1.3fr] transition-opacity ${apagado ? 'pointer-events-none opacity-30' : ''}`}>
           <RegistersPanel
             registros={registros}
             filasRegistros={filasRegistros}
@@ -920,16 +920,15 @@ function App() {
             }
           />
 
-          <div className="w-full max-w-md xl:justify-self-center">
-            <ControlCodePanel
-              ipPorts={ioPorts.ip ?? []}
-              opPorts={ioPorts.op ?? []}
-              apagado={apagado}
-              onEditIp={abrirEditorPuertoEntrada}
-              onEditIpValue={editarPuertoEntradaValor}
-              onFormatoInvalido={() => setMensaje('Formato invalido. Use HEX de 1 a 4 digitos.')}
-            />
-          </div>
+          <ControlCodePanel
+            ipPorts={ioPorts.ip ?? []}
+            opPorts={ioPorts.op ?? []}
+            apagado={apagado}
+            onEditIp={abrirEditorPuertoEntrada}
+            onEditIpValue={editarPuertoEntradaValor}
+            onFormatoInvalido={() => setMensaje('Formato invalido. Use HEX de 1 a 4 digitos.')}
+          />
+
         </section>
 
         <ToastMessage mensaje={mensaje} />
