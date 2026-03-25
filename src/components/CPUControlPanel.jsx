@@ -2,7 +2,7 @@
 
 import HexDisplay from './HexDisplay';
 import HexInput from './HexInput';
-import CpuStatusPanel from './CpuStatusPanel';
+// import CpuStatusPanel from './CpuStatusPanel';
 
 function OpPanel({ visualOp1, visualOp2 }) {
   return (
@@ -50,16 +50,7 @@ export default function CPUControlPanel({
         </span>
       </div>
 
-      {/* Panel de estado de CPU: IR, PC y flags */}
-      <div className="mb-6">
-        <CpuStatusPanel
-          irActualHex={irActualHex}
-          pcActualHex={pcActualHex}
-          flags={flags}
-          onToggleFlag={onToggleFlag}
-          apagado={apagado}
-        />
-      </div>
+
 
       {/* Input hexadecimal arriba, botones debajo, D/OP1 y C/OP2 a la derecha en vertical */}
       <div className="mb-4 grid grid-cols-2 gap-3 items-stretch">

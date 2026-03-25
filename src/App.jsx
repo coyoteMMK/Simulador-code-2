@@ -934,6 +934,13 @@ function App() {
           style={{ height: '100%', maxHeight: '100%', overflowY: 'auto' }}
         >
           <div className="flex-1 min-h-0 flex flex-col">
+            <CpuStatusPanel
+              irActualHex={irActualHex}
+              pcActualHex={pcActualHex}
+              flags={flags}
+              onToggleFlag={toggleFlag}
+              apagado={apagado}
+            />
             <InstructionsTerminal codigo={codigo} className="flex-1 min-h-0" />
           </div>
         </div>
