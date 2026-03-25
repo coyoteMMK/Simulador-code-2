@@ -250,10 +250,10 @@ export default function HexInput({
       disabled={disabled}
       placeholder={placeholder}
       maxLength={4}
-      className={`block w-[96px] rounded border bg-black px-2 py-0.5 text-center font-mono text-lg tracking-wider outline-none disabled:opacity-40 mx-auto ${
+      className={`font-code mx-auto block w-[96px] rounded border bg-black/60 px-2 py-0.5 text-center text-lg tracking-wider outline-none disabled:opacity-40 ${
         apagado
-          ? 'border-slate-700/70 text-transparent placeholder:text-transparent'
-          : 'border-lime-500/40 text-lime-300 placeholder:text-lime-700/70 focus:border-lime-400 focus:shadow-[0_0_12px_-4px_rgba(163,230,53,0.85)]'
+          ? 'border-cyan-500/10 text-transparent placeholder:text-transparent'
+          : 'border-cyan-500/20 text-lime-300 placeholder:text-lime-700/70 focus:border-cyan-400 focus:shadow-[0_0_12px_-4px_rgba(34,211,238,0.5)]'
       } ${className}`}
       inputMode="text"
       spellCheck={false}

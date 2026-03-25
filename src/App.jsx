@@ -1,8 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import TopAppBar from './components/TopAppBar';
 import TopSection from './components/TopSection';
+import CPUControlPanel from './components/CPUControlPanel';
+import CpuStatusPanel from './components/CpuStatusPanel';
+import InstructionsTerminal from './components/InstructionsTerminal';
 import RegistersPanel from './components/RegistersPanel';
 import MemoryPanel from './components/MemoryPanel';
 import ControlCodePanel from './components/ControlCodePanel';
+import AbstractVisualizer from './components/AbstractVisualizer';
 import ToastMessage from './components/ToastMessage';
 import HexEditModal from './components/HexEditModal';
 import {
@@ -79,7 +84,15 @@ function App() {
   const etiquetaOp1 = modoCarga === 'direccion' ? 'D/OP1' : 'R/OP1';
   const visualOp1 = visorDisplay.op1;
   const visualOp2 = visorDisplay.op2;
-  const filasRegistros = useMemo(() => Array.from({ length: 8 }, (_, i) => [i, i + 8]), []);
+  const filasRegistros = useMemo(
+    () => [
+      [0, 1, 2, 3],
+      [4, 5, 6, 7],
+      [8, 9, 10, 11],
+      [12, 13, 14, 15],
+    ],
+    []
+  );
 
   const actualizarVisor = (modo, direccionValor, registroValor, memRef, regsRef) => {
     if (modo === 'direccion') {
@@ -811,7 +824,6 @@ function App() {
       cerrarEditorHex();
       return;
     }
-
   };
 
   const editarRegistro = (index) => {
@@ -852,50 +864,81 @@ function App() {
   const apagado = !encendido;
 
   return (
-    <main className="min-h-screen bg-slate-950 px-100 py-1 text-slate-100 md:px-8">
-      <div className="mx-auto max-w-7xl space-y-6">
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept=".hex,.ehc,text/plain"
-          onChange={cargarProgramaDesdeArchivo}
-          className="hidden"
-        />
 
-        <TopSection
-          codigo={codigo}
-          encendido={encendido}
-          apagado={apagado}
-          modoPasoAPaso={modoPasoAPaso}
-          irActualHex={irActualHex}
-          pcActualHex={pcActualHex}
-          etiquetaOp1={etiquetaOp1}
-          visualOp1={visualOp1}
-          visualOp2={visualOp2}
-          modoCarga={modoCarga}
-          direccionInput={direccionInput}
-          flags={flags}
-          onToggleFlag={toggleFlag}
-          onToggleEncendido={toggleEncendido}
-          onTogglePasoAPaso={() => {
-            detenerAutoEjecucion();
-            setModoPasoAPaso((prev) => !prev);
-            setContinuarEnEjecucion(false);
-          }}
-          inicializarAlEncender={inicializarAlEncender}
-          onToggleInicializarAlEncender={() => setInicializarAlEncender((prev) => !prev)}
-          onSelectModoCarga={seleccionarModoCarga}
-          onDireccionInputChange={(nuevoValor) => setDireccionInput(nuevoValor)}
-          velocidadAutoMs={velocidadAutoMs}
-          onVelocidadAutoChange={setVelocidadAutoMs}
-          onCargar={cargarValorManual}
-          onCargarPrograma={cargarPrograma}
-          onInicializarMemoria={inicializarMemoriaAleatoria}
-          onContinuar={continuarVisualizador}
-          onEjecutar={ejecutarPrograma}
-        />
-        
-        <section className={`grid items-stretch gap-6 xl:h-[31rem] xl:max-h-[32rem] xl:min-h-0 xl:overflow-hidden xl:grid-cols-[1fr_1.7fr_1.3fr] transition-opacity`}>
+    <main className="relative flex h-screen w-screen flex-col overflow-hidden bg-[#030915] text-slate-100">
+      <div className="pointer-events-none absolute inset-0 opacity-70">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_10%_0%,rgba(27,168,255,0.16),transparent_35%),radial-gradient(circle_at_90%_100%,rgba(13,83,255,0.15),transparent_35%)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(10,20,36,0.35),rgba(3,8,16,0.85))]" />
+      </div>
+
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept=".hex,.ehc,text/plain"
+        onChange={cargarProgramaDesdeArchivo}
+        className="hidden"
+      />
+
+      <TopAppBar
+        encendido={encendido}
+        onToggleEncendido={toggleEncendido}
+        onCargarPrograma={cargarPrograma}
+        onInicializarMemoria={inicializarMemoriaAleatoria}
+        inicializarAlEncender={inicializarAlEncender}
+        setInicializarAlEncender={setInicializarAlEncender}
+        modoPasoAPaso={modoPasoAPaso}
+        onTogglePasoAPaso={() => {
+          detenerAutoEjecucion();
+          setModoPasoAPaso((prev) => !prev);
+          setContinuarEnEjecucion(false);
+        }}
+        velocidadAutoMs={velocidadAutoMs}
+        onVelocidadAutoChange={setVelocidadAutoMs}
+        apagado={apagado}
+      />
+
+      <div className="relative mt-16 grid min-h-0 flex-1 grid-cols-1 md:grid-cols-2 lg:grid-cols-[29fr_24fr_28fr_19fr] gap-4 overflow-hidden p-3 lg:gap-5 lg:p-5 w-full min-w-0 max-w-none">
+        {/* Intercambiadas las columnas de instrucciones y CPU control */}
+        <div
+          className="min-w-0 w-full flex flex-col gap-4 overflow-x-hidden pb-1 lg:gap-5 flex-1 min-h-0"
+        >
+          
+          <CPUControlPanel
+            irActualHex={irActualHex}
+            pcActualHex={pcActualHex}
+            flags={flags}
+            onToggleFlag={toggleFlag}
+            modoPasoAPaso={modoPasoAPaso}
+            onTogglePasoAPaso={() => {
+              detenerAutoEjecucion();
+              setModoPasoAPaso((prev) => !prev);
+              setContinuarEnEjecucion(false);
+            }}
+            velocidadAutoMs={velocidadAutoMs}
+            onVelocidadAutoChange={setVelocidadAutoMs}
+            apagado={apagado}
+            onDireccionesClick={() => seleccionarModoCarga('direccion')}
+            onRegistrosClick={() => seleccionarModoCarga('registro')}
+            onCargarClick={cargarValorManual}
+            onEjecutarClick={ejecutarPrograma}
+            onContinuarClick={continuarVisualizador}
+            direccionInput={direccionInput}
+            onDireccionInputChange={setDireccionInput}
+            visualOp1={visualOp1}
+            visualOp2={visualOp2}
+          />
+        </div>
+
+        <div
+          className="min-w-0 w-full flex flex-col gap-4 overflow-x-hidden pb-1 lg:gap-5"
+          style={{ height: '100%', maxHeight: '100%', overflowY: 'auto' }}
+        >
+          <div className="flex-1 min-h-0 flex flex-col">
+            <InstructionsTerminal codigo={codigo} className="flex-1 min-h-0" />
+          </div>
+        </div>
+
+        <div className="min-w-0 w-full flex min-h-0 flex-col gap-4 overflow-auto pb-1 lg:gap-5">
           <RegistersPanel
             registros={registros}
             filasRegistros={filasRegistros}
@@ -904,6 +947,20 @@ function App() {
             className={apagado ? 'pointer-events-none opacity-30' : ''}
           />
 
+          <ControlCodePanel
+            ipPorts={ioPorts.ip ?? []}
+            opPorts={ioPorts.op ?? []}
+            apagado={apagado}
+            onEditIp={abrirEditorPuertoEntrada}
+            onEditIpValue={editarPuertoEntradaValor}
+            onFormatoInvalido={() => setMensaje('Formato invalido. Use HEX de 1 a 4 digitos.')}
+            className={apagado ? 'pointer-events-none opacity-30' : ''}
+          />
+
+          <AbstractVisualizer />
+        </div>
+
+        <div className="min-w-0 w-full overflow-auto pb-1" style={{ minWidth: '0' }}>
           <MemoryPanel
             inicio={inicio}
             fin={fin}
@@ -919,52 +976,41 @@ function App() {
               setPaginaMemoria((p) => ((p + 1) * TAM_BLOQUE < MEM_SIZE ? p + 1 : p))
             }
           />
+        </div>
+      </div>
 
-          <ControlCodePanel
-            ipPorts={ioPorts.ip ?? []}
-            opPorts={ioPorts.op ?? []}
-            apagado={apagado}
-            onEditIp={abrirEditorPuertoEntrada}
-            onEditIpValue={editarPuertoEntradaValor}
-            onFormatoInvalido={() => setMensaje('Formato invalido. Use HEX de 1 a 4 digitos.')}
-            className={apagado ? 'pointer-events-none opacity-30' : ''}
-          />
+      <ToastMessage mensaje={mensaje} />
 
-        </section>
-
-        <ToastMessage mensaje={mensaje} />
-        {modalFin.abierto ? (
-          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-950/70 px-4">
-            <div className="w-full max-w-md rounded-xl border border-cyan-400/40 bg-slate-900 p-5 shadow-[0_20px_60px_-20px_rgba(34,211,238,0.5)]">
-              <h3 className="text-lg font-semibold text-cyan-200">Programa finalizado</h3>
-              <p className="mt-2 text-sm text-slate-200">
-                {modalFin.texto}
-              </p>
-              <div className="mt-4 flex justify-end">
-                <button
-                  type="button"
-                  onClick={() => setModalFin({ abierto: false, texto: '' })}
-                  className="rounded-md bg-cyan-500 px-4 py-2 text-sm font-semibold text-slate-900 transition hover:bg-cyan-400"
-                >
-                  Aceptar
-                </button>
-              </div>
+      {modalFin.abierto ? (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-950/70 px-4">
+          <div className="w-full max-w-md rounded-xl border border-cyan-400/40 bg-slate-900 p-5 shadow-[0_20px_60px_-20px_rgba(34,211,238,0.5)]">
+            <h3 className="text-lg font-semibold text-cyan-200">Programa finalizado</h3>
+            <p className="mt-2 text-sm text-slate-200">{modalFin.texto}</p>
+            <div className="mt-4 flex justify-end">
+              <button
+                type="button"
+                onClick={() => setModalFin({ abierto: false, texto: '' })}
+                className="rounded-md bg-cyan-500 px-4 py-2 text-sm font-semibold text-slate-900 transition hover:bg-cyan-400"
+              >
+                Aceptar
+              </button>
             </div>
           </div>
-        ) : null}
-        <HexEditModal
-          abierto={editorHex.abierto}
-          titulo={editorHex.titulo}
-          etiqueta={editorHex.etiqueta}
-          valor={editorHex.valor}
-          error={editorHex.error}
-          onChange={(nuevoValor) =>
-            setEditorHex((prev) => ({ ...prev, valor: nuevoValor, error: '' }))
-          }
-          onConfirm={confirmarEditorHex}
-          onCancel={cerrarEditorHex}
-        />
-      </div>
+        </div>
+      ) : null}
+
+      <HexEditModal
+        abierto={editorHex.abierto}
+        titulo={editorHex.titulo}
+        etiqueta={editorHex.etiqueta}
+        valor={editorHex.valor}
+        error={editorHex.error}
+        onChange={(nuevoValor) =>
+          setEditorHex((prev) => ({ ...prev, valor: nuevoValor, error: '' }))
+        }
+        onConfirm={confirmarEditorHex}
+        onCancel={cerrarEditorHex}
+      />
     </main>
   );
 }

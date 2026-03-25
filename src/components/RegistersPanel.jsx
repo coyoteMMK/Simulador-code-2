@@ -3,35 +3,35 @@ import HexDisplay from './HexDisplay';
 
 export default function RegistersPanel({ registros, filasRegistros, onEditRegistro, apagado, className = '' }) {
   return (
-    <article className={`flex h-full min-h-0 flex-col rounded-xl border border-slate-800 bg-slate-900/70 p-4 ${className}`}>
-      <h2 className="mb-3 text-lg font-semibold">Registros</h2>
-      <div className="max-h-[28rem] overflow-auto rounded-lg border border-slate-700 xl:max-h-none xl:min-h-0">
-        <table className="w-full border-collapse text-center text-sm">
-          <tbody>
-            {filasRegistros.map(([izq, der], fila) => (
-              <tr key={fila} className="odd:bg-slate-900 even:bg-slate-800/60">
-                <td className="border border-slate-700 px-3 py-2">
-                  r{izq.toString(16).toUpperCase()}
-                </td>
-                <td
-                  className="cursor-pointer border border-slate-700 px-3 py-2 hover:bg-cyan-900/50"
-                  onClick={() => onEditRegistro(izq)}
-                >
-                  <HexDisplay value={toHex(registros[izq], 4)} apagado={apagado} />
-                </td>
-                <td className="border border-slate-700 px-3 py-2">
-                  r{der.toString(16).toUpperCase()}
-                </td>
-                <td
-                  className="cursor-pointer border border-slate-700 px-3 py-2 hover:bg-cyan-900/50"
-                  onClick={() => onEditRegistro(der)}
-                >
-                  <HexDisplay value={toHex(registros[der], 4)} apagado={apagado} />
-                </td>
-              </tr>
+    <article className={`flex flex-col rounded-xl border border-cyan-500/15 bg-[#0d182a]/80 p-4 ${className}`}>
+      <div className="mb-3 flex items-center justify-between">
+        <h2 className="font-headline text-sm font-semibold uppercase tracking-[0.12em] text-slate-200">Registros</h2>
+        <span className="font-code text-[10px] text-cyan-300/80">CPU_STATE: ACTIVE</span>
+      </div>
+
+      <div className="flex flex-col gap-2">
+        {filasRegistros.map((fila, filaIdx) => (
+          <div key={`fila-${filaIdx}`} className="grid grid-cols-4 gap-2">
+            {fila.map((idx) => (
+              <button
+                type="button"
+                key={`reg-${idx}`}
+                onClick={() => onEditRegistro(idx)}
+                className="min-h-[78px] rounded-md border border-cyan-500/10 bg-[#0a1525] px-2 py-2 text-left transition hover:border-cyan-400/30 hover:bg-[#102338]"
+                disabled={apagado}
+              >
+                <p className="font-headline text-[10px] uppercase tracking-[0.12em] text-slate-500">
+                  r{idx.toString(16).toUpperCase()}
+                </p>
+                <HexDisplay
+                  value={toHex(registros[idx], 4)}
+                  apagado={apagado}
+                  className="!mt-1 !w-full !border-cyan-500/15 !bg-black/50 !px-1 !text-[1.15rem]"
+                />
+              </button>
             ))}
-          </tbody>
-        </table>
+          </div>
+        ))}
       </div>
     </article>
   );

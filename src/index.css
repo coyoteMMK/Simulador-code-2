@@ -2,7 +2,59 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --bg-0: #030914;
+  --bg-1: #071120;
+  --panel: #0b1728;
+  --panel-soft: #0f1d31;
+  --line: #1f3044;
+  --line-soft: #152537;
+  --cyan: #16dbff;
+  --lime: #beff0a;
+}
+
+* {
+  box-sizing: border-box;
+}
+
 body {
   margin: 0;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: 'Rajdhani', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #dde7f7;
+  background:
+    radial-gradient(1200px 500px at 50% -160px, rgba(28, 218, 255, 0.25), transparent 60%),
+    radial-gradient(900px 450px at 110% 120%, rgba(5, 114, 255, 0.12), transparent 62%),
+    linear-gradient(180deg, var(--bg-1), var(--bg-0));
+  min-height: 100vh;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(7, 14, 28, 0.8);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(28, 198, 255, 0.35);
+  border-radius: 999px;
+  border: 1px solid rgba(28, 198, 255, 0.15);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(28, 198, 255, 0.5);
+}
+
+.font-headline {
+  font-family: 'Orbitron', sans-serif;
+}
+
+.font-code {
+  font-family: 'Share Tech Mono', 'Consolas', monospace;
 }

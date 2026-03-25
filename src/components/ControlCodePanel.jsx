@@ -115,12 +115,15 @@ export default function ControlCodePanel({
   };
 
   return (
-    <article className={`flex h-full min-h-0 flex-col rounded-xl border border-slate-800 bg-slate-900/70 p-4 ${className}`}>
-      <h2 className="mb-3 text-center text-lg font-semibold">Control CODE-2</h2>
+    <article className={`flex flex-col rounded-xl border border-cyan-500/15 bg-[#0d182a]/80 p-4 ${className}`}>
+      <div className="mb-3 flex items-center justify-between">
+        <h2 className="font-headline text-sm font-semibold uppercase tracking-[0.12em] text-slate-200">Puertos I/O</h2>
+        <span className="font-code text-[10px] text-slate-500">BUS_SYNCED</span>
+      </div>
 
-      <div className="grid max-h-[28rem] grid-cols-1 gap-3 overflow-auto xl:max-h-nonex l:min-h-0">
-        <div className="rounded-lg border border-slate-700">
-          <div className="flex items-center justify-center gap-2 border-b border-slate-700 px-2 py-1 text-xs text-slate-300">
+      <div className="grid grid-cols-1 gap-3">
+        <div className="flex flex-col rounded-md border border-cyan-500/10 bg-[#0a1626]">
+          <div className="flex items-center justify-center gap-2 border-b border-cyan-500/10 px-2 py-1 text-xs text-slate-300">
             <button
               type="button"
               onClick={() => {
@@ -128,7 +131,7 @@ export default function ControlCodePanel({
                 inputRefs.current = {};
                 setToastPuertos('ip');
               }}
-              className="rounded border border-cyan-700/60 bg-cyan-900/30 px-2 py-1 text-cyan-200"
+              className="rounded border border-cyan-700/45 bg-cyan-900/20 px-2 py-1 text-cyan-200"
             >
               Mostrar todos
             </button>
@@ -150,13 +153,14 @@ export default function ControlCodePanel({
               &gt;
             </button>
           </div>
+          <p className="px-2 pt-2 font-headline text-[9px] uppercase tracking-[0.12em] text-slate-500">Input ports</p>
           <table className="w-full border-collapse text-center text-sm">
             <tbody>
               {puertosIpVisibles.map((puerto) => (
-                <tr key={`ip-${puerto}`} className="odd:bg-slate-900 even:bg-slate-800/60">
-                  <td className="border border-slate-700 px-2 py-2 font-medium">IP{toHex2(puerto)}</td>
+                <tr key={`ip-${puerto}`} className="odd:bg-[#0a1626] even:bg-[#0f1d30]">
+                  <td className="border-b border-cyan-500/10 px-2 py-2 font-code font-medium text-slate-400">IP{toHex2(puerto)}</td>
                   <td
-                    className={`border border-slate-700 px-2 py-2 ${apagado ? '' : 'cursor-pointer hover:bg-cyan-900/40'}`}
+                    className={`border-b border-cyan-500/10 px-2 py-2 ${apagado ? '' : 'cursor-pointer hover:bg-cyan-900/20'}`}
                     onClick={() => {
                       if (!apagado) {
                         onEditIp?.(puerto);
@@ -171,8 +175,8 @@ export default function ControlCodePanel({
           </table>
         </div>
 
-        <div className="rounded-lg border border-slate-700">
-          <div className="flex items-center justify-center gap-2 border-b border-slate-700 px-2 py-1 text-xs text-slate-300">
+        <div className="flex flex-col rounded-md border border-cyan-500/10 bg-[#0a1626]">
+          <div className="flex items-center justify-center gap-2 border-b border-cyan-500/10 px-2 py-1 text-xs text-slate-300">
             <button
               type="button"
               onClick={() => {
@@ -180,7 +184,7 @@ export default function ControlCodePanel({
                 inputRefs.current = {};
                 setToastPuertos('op');
               }}
-              className="rounded border border-cyan-700/60 bg-cyan-900/30 px-2 py-1 text-cyan-200"
+              className="rounded border border-cyan-700/45 bg-cyan-900/20 px-2 py-1 text-cyan-200"
             >
               Mostrar todos
             </button>
@@ -202,12 +206,13 @@ export default function ControlCodePanel({
               &gt;
             </button>
           </div>
+          <p className="px-2 pt-2 font-headline text-[9px] uppercase tracking-[0.12em] text-slate-500">Output ports</p>
           <table className="w-full border-collapse text-center text-sm">
             <tbody>
               {puertosOpVisibles.map((puerto) => (
-                <tr key={`op-${puerto}`} className="odd:bg-slate-900 even:bg-slate-800/60">
-                  <td className="border border-slate-700 px-2 py-2 font-medium">OP{toHex2(puerto)}</td>
-                  <td className="border border-slate-700 px-2 py-2">
+                <tr key={`op-${puerto}`} className="odd:bg-[#0a1626] even:bg-[#0f1d30]">
+                  <td className="border-b border-cyan-500/10 px-2 py-2 font-code font-medium text-slate-400">OP{toHex2(puerto)}</td>
+                  <td className="border-b border-cyan-500/10 px-2 py-2">
                     <HexDisplay value={toHex4(opPorts[puerto] ?? 0)} apagado={apagado} />
                   </td>
                 </tr>
@@ -227,11 +232,11 @@ export default function ControlCodePanel({
           }}
         >
           <div
-            className="w-[min(96vw,860px)] overflow-hidden rounded-xl border border-slate-700 bg-slate-900 shadow-[0_24px_70px_-28px_rgba(15,23,42,0.9)]"
+            className="w-[min(96vw,860px)] overflow-hidden rounded-xl border border-cyan-500/20 bg-[#0b1526] shadow-[0_24px_70px_-28px_rgba(15,23,42,0.9)]"
             onClick={(event) => event.stopPropagation()}
           >
-            <div className="flex items-center justify-between border-b border-slate-700 bg-slate-800/80 px-3 py-2">
-              <h3 className="text-sm font-semibold text-cyan-200">
+            <div className="flex items-center justify-between border-b border-cyan-500/20 bg-[#111f31] px-3 py-2">
+              <h3 className="font-headline text-sm font-semibold text-cyan-200">
                 {toastEsEntrada ? 'Los 256 puertos de entrada (H00-HFF)' : 'Los 256 puertos de salida (H00-HFF)'}
               </h3>
               <button
@@ -257,15 +262,15 @@ export default function ControlCodePanel({
               <table className="w-full border-collapse text-center text-sm">
                 <tbody>
                   {filasToast.map((grupo, idxFila) => (
-                    <tr key={`fila-toast-${idxFila}`} className="odd:bg-slate-900 even:bg-slate-800/60">
+                    <tr key={`fila-toast-${idxFila}`} className="odd:bg-[#0a1626] even:bg-[#0f1d30]">
                       {grupo.map((puerto) => {
                         const prefijo = toastEsEntrada ? 'IP' : 'OP';
                         const valor = toastEsEntrada ? ipPorts[puerto] ?? 0 : opPorts[puerto] ?? 0;
                         return [
-                          <td key={`tag-${prefijo}-${puerto}`} className="border border-slate-700 px-2 py-2 font-medium text-cyan-200">{prefijo}{toHex2(puerto)}</td>,
+                          <td key={`tag-${prefijo}-${puerto}`} className="border border-cyan-500/10 px-2 py-2 font-code font-medium text-cyan-200">{prefijo}{toHex2(puerto)}</td>,
                           <td
                             key={`val-${prefijo}-${puerto}`}
-                            className="border border-slate-700 px-2 py-2"
+                            className="border border-cyan-500/10 px-2 py-2"
                           >
                             {toastEsEntrada ? (
                               <HexInput

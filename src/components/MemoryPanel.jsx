@@ -106,32 +106,49 @@ export default function MemoryPanel({
   };
 
   return (
-    <article className="flex h-full min-h-0 flex-col rounded-xl border border-slate-800 bg-slate-900/70 p-4">
+    <article className="flex h-full w-full min-h-0 flex-col rounded-xl border border-cyan-500/15 bg-[#0d182a]/80 p-3">
       <div className="mb-3 flex items-center justify-between">
-        <h2 className="text-lg font-semibold">Memoria</h2>
-        <div className="flex items-center gap-2 text-sm">
+        <h2 className="font-headline text-sm font-semibold uppercase tracking-[0.12em] text-slate-200">Memoria</h2>
+        <div className="flex items-center gap-2 text-xs">
           <button
             type="button"
             onClick={onPrev}
-            className="rounded bg-slate-700 px-2 py-1 hover:bg-slate-600"
+            className="rounded border border-cyan-500/15 bg-[#101f34] px-2 py-1 hover:bg-[#14304d]"
           >
             {'<'}
           </button>
-          <span className="font-mono tracking-wider text-cyan-200">
+          <span className="font-code tracking-wider text-cyan-200">
             H{toHex(inicio, 4)} - H{toHex(fin - 1, 4)}
           </span>
           <button
             type="button"
             onClick={onNext}
-            className="rounded bg-slate-700 px-2 py-1 hover:bg-slate-600"
+            className="rounded border border-cyan-500/15 bg-[#101f34] px-2 py-1 hover:bg-[#14304d]"
           >
             {'>'}
           </button>
         </div>
       </div>
 
-      <div ref={scrollRef} className="max-h-[28rem] overflow-auto rounded-lg border border-slate-700 xl:max-h-none  xl:min-h-0">
-        <table className="w-full border-collapse text-center text-sm">
+      <div className="mb-2 flex items-center gap-2 rounded-md border border-cyan-500/10 bg-black/30 px-2 py-1.5">
+        <input
+          type="text"
+          value="goto addr..."
+          readOnly
+          className="font-code w-full bg-transparent text-[11px] uppercase tracking-[0.08em] text-slate-500 outline-none"
+          aria-label="Buscador de memoria"
+        />
+        <span className="material-symbols-outlined text-sm text-slate-500">search</span>
+      </div>
+
+      <div ref={scrollRef} className="max-h-[28rem] overflow-auto rounded-lg   bg-black/20 xl:max-h-none xl:min-h-0">
+        <table className="w-full border-collapse text-center text-xs">
+          <thead className="sticky top-0 z-10 bg-[#111f31]">
+            <tr className="font-headline text-[9px] uppercase tracking-[0.12em] text-slate-500">
+              <th className="border-b border-cyan-500/10 px-2 py-2">Address</th>
+              <th className="border-b border-cyan-500/10 px-2 py-2">Value</th>
+            </tr>
+          </thead>
           <tbody>
             {bloqueMemoria.map((valor, i) => {
               const indexAbsoluto = inicio + i;
@@ -140,13 +157,13 @@ export default function MemoryPanel({
                 <tr
                   key={indexAbsoluto}
                   ref={esActual ? filaActualRef : null}
-                  className={esActual ? 'bg-amber-300 text-slate-900' : 'odd:bg-slate-900 even:bg-slate-800/60'}
+                  className={esActual ? 'bg-cyan-400/18' : 'odd:bg-[#0a1626] even:bg-[#0d1a2b]'}
                 >
-                  <td className="border border-slate-700 px-3 py-2 font-mono tracking-wider text-cyan-200">
+                  <td className="border-b border-cyan-500/10 px-2 py-1.5 font-code tracking-wider text-slate-400">
                     H{toHex(indexAbsoluto, 4)}
                   </td>
                   <td
-                    className="border border-slate-700 px-2 py-1"
+                    className="border-b border-cyan-500/10 px-1 py-1"
                   >
                     <HexInput
                       value={ediciones[indexAbsoluto] ?? toHex(valor, 4)}
@@ -246,8 +263,8 @@ export default function MemoryPanel({
                           }
                         }
                       }}
-                      className={`mx-auto !w-[104px] !rounded-md !border-slate-600 !bg-slate-900 !text-center !font-mono !text-base !tracking-wide !shadow-none disabled:!opacity-100 ${
-                        apagado ? '!text-slate-500' : '!text-cyan-200 focus:!border-cyan-400 focus:!shadow-[0_0_0_1px_rgba(34,211,238,0.35)]'
+                      className={`mx-auto !w-[104px] !rounded-md !border-cyan-500/20 !bg-black/60 !text-center !font-code !text-base !tracking-wide !shadow-none disabled:!opacity-100 ${
+                        apagado ? '!text-slate-500' : '!text-lime-300 focus:!border-cyan-400 focus:!shadow-[0_0_0_1px_rgba(34,211,238,0.35)]'
                       }`}
                     />
                   </td>
