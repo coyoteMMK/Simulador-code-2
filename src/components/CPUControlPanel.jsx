@@ -43,7 +43,7 @@ export default function CPUControlPanel({
   return (
     <article className="flex flex-col rounded-xl border border-cyan-500/15 bg-[#0d182a]/80 p-4 w-full min-w-0 shadow-[0_18px_45px_-26px_rgba(10,176,255,0.45)]">
       <div className="mb-4 flex items-center justify-between">
-        <h2 className="font-headline text-sm font-semibold uppercase tracking-[0.12em] text-cyan-300">
+        <h2 className="font-headline text-sm font-semibold uppercase tracking-[0.12em] text-white">
           CPU Control
         </h2>
         <span className="font-code rounded border border-cyan-400/20 px-2 py-0.5 text-[9px] text-cyan-300">

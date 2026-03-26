@@ -116,44 +116,48 @@ export default function ControlCodePanel({
 
   return (
     <article className={`flex flex-col rounded-xl border border-cyan-500/15 bg-[#0d182a]/80 p-4 ${className}`}>
-      <div className="mb-3 flex items-center justify-between">
-        <h2 className="font-headline text-sm font-semibold uppercase tracking-[0.12em] text-cyan-300">Puertos I/O</h2>
+      <div className="mb-3 flex items-center gap-3">
+        <h2 className="font-headline text-sm font-semibold uppercase tracking-[0.12em] text-white text-left">Controles de Puertos</h2>
         <span className="font-code text-[10px] text-cyan-300">BUS_SYNCED</span>
       </div>
 
       <div className="grid grid-cols-1 gap-3">
         {/* Entrada */}
         <div className="flex flex-col rounded-md border border-cyan-500/10 bg-[#0a1626]">
-          <p className="px-2 pt-2 font-headline text-[11px] uppercase tracking-[0.12em] text-cyan-300 text-center">Puertos de Entrada</p>
-          <div className="flex items-center justify-center gap-2 border-b border-cyan-500/10 px-2 py-1 text-xs text-slate-300 mt-1">
-            <button
-              type="button"
-              onClick={() => {
-                setEdicionesIp({});
-                inputRefs.current = {};
-                setToastPuertos('ip');
-              }}
-              className="rounded border border-cyan-700/45 bg-cyan-900/20 px-2 py-1 text-cyan-200"
-            >
-              Mostrar todos
-            </button>
-            <button
-              type="button"
-              onClick={() => setIpPage((prev) => Math.max(0, prev - 1))}
-              disabled={ipPage === 0}
-              className="rounded border border-slate-600 px-2 py-1 disabled:opacity-40"
-            >
-              &lt;
-            </button>
-            <span>H{toHex2(ipStart)}-H{toHex2(ipEnd)}</span>
-            <button
-              type="button"
-              onClick={() => setIpPage((prev) => Math.min(totalPages - 1, prev + 1))}
-              disabled={ipPage >= totalPages - 1}
-              className="rounded border border-slate-600 px-2 py-1 disabled:opacity-40"
-            >
-              &gt;
-            </button>
+          <div className="flex items-center border-b border-cyan-500/10 px-2 pt-3 pb-1 text-xs text-slate-300">
+            <p className="font-headline text-[16px] font-bold uppercase tracking-[0.15em] text-white text-left flex-1 m-0">ENTRADA</p>
+            <div className="flex-1 flex justify-center">
+              <button
+                type="button"
+                onClick={() => {
+                  setEdicionesIp({});
+                  inputRefs.current = {};
+                  setToastPuertos('ip');
+                }}
+                className="rounded border border-cyan-700/45 bg-cyan-900/20 px-2 py-1 text-cyan-200"
+              >
+                Mostrar todos
+              </button>
+            </div>
+            <div className="flex items-center gap-2 flex-1 justify-end">
+              <button
+                type="button"
+                onClick={() => setIpPage((prev) => Math.max(0, prev - 1))}
+                disabled={ipPage === 0}
+                className="rounded border border-slate-600 px-2 py-1 disabled:opacity-40"
+              >
+                &lt;
+              </button>
+              <span>H{toHex2(ipStart)}-H{toHex2(ipEnd)}</span>
+              <button
+                type="button"
+                onClick={() => setIpPage((prev) => Math.min(totalPages - 1, prev + 1))}
+                disabled={ipPage >= totalPages - 1}
+                className="rounded border border-slate-600 px-2 py-1 disabled:opacity-40"
+              >
+                &gt;
+              </button>
+            </div>
           </div>
           {/* Título movido arriba */}
           <table className="w-full border-collapse text-center text-sm">
@@ -179,36 +183,40 @@ export default function ControlCodePanel({
 
         {/* Salida */}
         <div className="flex flex-col rounded-md border border-cyan-500/10 bg-[#0a1626]">
-          <p className="px-2 pt-2 font-headline text-[11px] uppercase tracking-[0.12em] text-cyan-300 text-center">Puertos de Salida</p>
-          <div className="flex items-center justify-center gap-2 border-b border-cyan-500/10 px-2 py-1 text-xs text-slate-300 mt-1">
-            <button
-              type="button"
-              onClick={() => {
-                setEdicionesIp({});
-                inputRefs.current = {};
-                setToastPuertos('op');
-              }}
-              className="rounded border border-cyan-700/45 bg-cyan-900/20 px-2 py-1 text-cyan-200"
-            >
-              Mostrar todos
-            </button>
-            <button
-              type="button"
-              onClick={() => setOpPage((prev) => Math.max(0, prev - 1))}
-              disabled={opPage === 0}
-              className="rounded border border-slate-600 px-2 py-1 disabled:opacity-40"
-            >
-              &lt;
-            </button>
-            <span>H{toHex2(opStart)}-H{toHex2(opEnd)}</span>
-            <button
-              type="button"
-              onClick={() => setOpPage((prev) => Math.min(totalPages - 1, prev + 1))}
-              disabled={opPage >= totalPages - 1}
-              className="rounded border border-slate-600 px-2 py-1 disabled:opacity-40"
-            >
-              &gt;
-            </button>
+          <div className="flex items-center border-b border-cyan-500/10 px-2 pt-3 pb-1 text-xs text-slate-300">
+            <p className="font-headline text-[16px] font-bold uppercase tracking-[0.15em] text-white text-left flex-1 m-0">SALIDA</p>
+            <div className="flex-1 flex justify-center">
+              <button
+                type="button"
+                onClick={() => {
+                  setEdicionesIp({});
+                  inputRefs.current = {};
+                  setToastPuertos('op');
+                }}
+                className="rounded border border-cyan-700/45 bg-cyan-900/20 px-2 py-1 text-cyan-200"
+              >
+                Mostrar todos
+              </button>
+            </div>
+            <div className="flex items-center gap-2 flex-1 justify-end">
+              <button
+                type="button"
+                onClick={() => setOpPage((prev) => Math.max(0, prev - 1))}
+                disabled={opPage === 0}
+                className="rounded border border-slate-600 px-2 py-1 disabled:opacity-40"
+              >
+                &lt;
+              </button>
+              <span>H{toHex2(opStart)}-H{toHex2(opEnd)}</span>
+              <button
+                type="button"
+                onClick={() => setOpPage((prev) => Math.min(totalPages - 1, prev + 1))}
+                disabled={opPage >= totalPages - 1}
+                className="rounded border border-slate-600 px-2 py-1 disabled:opacity-40"
+              >
+                &gt;
+              </button>
+            </div>
           </div>
           {/* Título movido arriba */}
           <table className="w-full border-collapse text-center text-sm">

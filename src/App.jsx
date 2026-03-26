@@ -927,6 +927,7 @@ function App() {
             visualOp1={visualOp1}
             visualOp2={visualOp2}
           />
+          <AbstractVisualizer/>
         </div>
 
         <div
@@ -964,7 +965,7 @@ function App() {
             className={apagado ? 'pointer-events-none opacity-30' : ''}
           />
 
-          <AbstractVisualizer />
+          
         </div>
 
         <div className="min-w-0 w-full overflow-auto pb-1" style={{ minWidth: '0' }}>

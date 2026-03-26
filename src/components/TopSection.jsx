@@ -65,6 +65,7 @@ export default function TopSection({
         <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_220px]">
           <div className="grid gap-3 sm:grid-cols-[1fr_1fr]">
             <div className="space-y-2 rounded-lg border border-slate-800 bg-slate-900/70 p-2">
+              <span className="font-headline text-[12px] font-semibold uppercase tracking-[0.12em] text-white block mb-2">Controles</span>
               <button
                 type="button"
                 onClick={onToggleEncendido}

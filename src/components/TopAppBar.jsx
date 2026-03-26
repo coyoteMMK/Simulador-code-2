@@ -15,7 +15,7 @@ export default function TopAppBar({
     <header className="fixed top-0 z-50 flex h-16 w-full items-center justify-between border-b border-cyan-500/20 bg-[#070f1dcc] px-4 backdrop-blur-xl lg:px-6">
       <div className="flex items-center gap-4">
         <div className="hidden items-center gap-3 rounded-lg border border-cyan-500/15 bg-[#0b1628]/70 px-3 py-1.5 sm:flex">
-          <span className="font-headline text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-400">Power</span>
+          <span className="font-headline text-[10px] font-semibold uppercase tracking-[0.12em] text-white">Power</span>
           <button
             onClick={onToggleEncendido}
             className={`w-10 h-5 rounded-full relative p-0.5 transition-all ${
@@ -35,7 +35,7 @@ export default function TopAppBar({
           </span>
           {/* Toggle para inicializar memoria al encender */}
           <div className="flex items-center gap-1 ml-4">
-            <span className="font-headline text-[10px] uppercase tracking-[0.12em] text-slate-400">Init Mem</span>
+            <span className="font-headline text-[10px] uppercase tracking-[0.12em] text-white">Init Mem</span>
             <input
               type="checkbox"
               checked={!!inicializarAlEncender}
@@ -47,7 +47,7 @@ export default function TopAppBar({
         </div>
         {/* Paso a paso y velocidad auto */}
         <div className="flex items-center gap-4 ml-4">
-          <span className="font-headline text-[10px] uppercase tracking-[0.12em] text-slate-400">Paso a paso</span>
+          <span className="font-headline text-[10px] uppercase tracking-[0.12em] text-white">Paso a paso</span>
           <button
             type="button"
             onClick={onTogglePasoAPaso}

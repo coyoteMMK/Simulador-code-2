@@ -5,7 +5,7 @@ export default function RegistersPanel({ registros, filasRegistros, onEditRegist
   return (
     <article className={`flex flex-col rounded-xl border border-cyan-500/15 bg-[#0d182a]/80 p-4 ${className}`}>
       <div className="mb-3 flex items-center justify-between">
-        <h2 className="font-headline text-sm font-semibold uppercase tracking-[0.12em] text-cyan-300">Registros</h2>
+        <h2 className="font-headline text-sm font-semibold uppercase tracking-[0.12em] text-white">Registros</h2>
         <span className="font-code text-[10px] text-cyan-300">CPU_STATE: ACTIVE</span>
       </div>
 

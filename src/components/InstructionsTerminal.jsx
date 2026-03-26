@@ -4,8 +4,7 @@ export default function InstructionsTerminal({ codigo, className = '' }) {
   return (
     <article className={`flex flex-col rounded-xl border border-cyan-500/15 bg-[#0d182a]/80 p-4 min-h-0 h-full w-full ${className}`}>
       <div className="mb-3 flex items-center justify-between">
-        <h2 className="font-headline text-sm font-semibold uppercase tracking-[0.12em] text-slate-200">Instrucciones</h2>
-        <span className="material-symbols-outlined text-sm text-slate-500">info</span>
+        <h2 className="font-headline text-sm font-semibold uppercase tracking-[0.12em] text-white">Instrucciones</h2>
       </div>
       <div className="font-code flex-1 overflow-y-auto text-[11px] leading-relaxed">
         {lineas.length === 0 ? (

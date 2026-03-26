@@ -108,7 +108,7 @@ export default function MemoryPanel({
   return (
     <article className="flex h-full w-full min-h-0 flex-col rounded-xl border border-cyan-500/15 bg-[#0d182a]/80 p-3">
       <div className="mb-3 flex items-center justify-between">
-        <h2 className="font-headline text-sm font-semibold uppercase tracking-[0.12em] text-cyan-300">Memoria</h2>
+        <h2 className="font-headline text-sm font-semibold uppercase tracking-[0.12em] text-white">Memoria</h2>
         <div className="flex items-center gap-2 text-xs">
           <button
             type="button"
@@ -144,9 +144,9 @@ export default function MemoryPanel({
       <div ref={scrollRef} className="max-h-[28rem] overflow-auto rounded-lg   bg-black/20 xl:max-h-none xl:min-h-0">
         <table className="w-full border-collapse text-center text-xs">
           <thead className="sticky top-0 z-10 bg-[#111f31]">
-            <tr className="font-headline text-[9px] uppercase tracking-[0.12em] text-cyan-300">
-              <th className="border-b border-cyan-500/10 px-2 py-2">Address</th>
-              <th className="border-b border-cyan-500/10 px-2 py-2">Value</th>
+            <tr className="font-headline text-[9px] uppercase tracking-[0.12em] text-white">
+              <th className="border-b border-cyan-500/10 px-2 py-2">Dirección</th>
+              <th className="border-b border-cyan-500/10 px-2 py-2">Valor</th>
             </tr>
           </thead>
           <tbody>
