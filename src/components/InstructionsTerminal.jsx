@@ -2,7 +2,7 @@ export default function InstructionsTerminal({ codigo, className = '' }) {
   const lineas = codigo.split('\n');
 
   return (
-    <article className={`flex h-full w-full min-h-0 flex-col rounded-xl border border-cyan-500/15 bg-[#0d182a]/80 p-3 ${className}`}>
+    <article className={`flex flex-col rounded-xl border border-cyan-500/15 bg-[#0d182a]/80 p-4 min-h-0 h-full w-full ${className}`}>
       <div className="mb-3 flex items-center justify-between">
         <h2 className="font-headline text-sm font-semibold uppercase tracking-[0.12em] text-slate-200">Instrucciones</h2>
         <span className="material-symbols-outlined text-sm text-slate-500">info</span>

@@ -2,7 +2,7 @@ import HexDisplay from './HexDisplay';
 
 export default function CpuStatusPanel({ irActualHex, pcActualHex, flags, onToggleFlag, apagado }) {
   return (
-    <div className="w-full mb-4 flex flex-col gap-4 items-stretch">
+    <article className="flex flex-col rounded-xl border border-cyan-500/15 bg-[#0d182a]/80 p-4 w-full mb-4 gap-4 items-stretch">
       <div className="grid grid-cols-2 gap-4">
         {/* IR */}
         <div className="flex flex-col items-center bg-[#101d2f] border border-cyan-500/10 rounded-lg p-3">
@@ -16,7 +16,7 @@ export default function CpuStatusPanel({ irActualHex, pcActualHex, flags, onTogg
         </div>
       </div>
       {/* Flags en una sola fila */}
-      <div className="mt-4 flex flex-row items-center justify-center gap-6 bg-[#232834] rounded-lg py-3">
+      <div className="mt-4 flex flex-row items-center justify-center gap-6 bg-[#0d182a]/80 border border-cyan-500/10 rounded-lg py-3">
         {[
           { name: 'Z', value: flags.z },
           { name: 'S', value: flags.s },
@@ -29,7 +29,7 @@ export default function CpuStatusPanel({ irActualHex, pcActualHex, flags, onTogg
               type="button"
               onClick={() => onToggleFlag && onToggleFlag(flag.name.toLowerCase())}
               disabled={apagado}
-              className={`w-8 h-8 flex items-center justify-center rounded bg-black border border-slate-700 font-code text-base transition-all shadow ${
+              className={`w-8 h-8 flex items-center justify-center rounded bg-black border border-cyan-500/20 font-code text-base transition-all shadow ${
                 flag.value
                   ? 'bg-lime-200 text-black border-lime-400 shadow-[0_0_10px_2px_#eaff7a88]' 
                   : 'text-slate-200'
@@ -41,6 +41,6 @@ export default function CpuStatusPanel({ irActualHex, pcActualHex, flags, onTogg
           </div>
         ))}
       </div>
-    </div>
+    </article>
   );
 }
