@@ -108,7 +108,7 @@ export default function MemoryPanel({
   return (
     <article className="flex h-full w-full min-h-0 flex-col rounded-xl border border-cyan-500/15 bg-[#0d182a]/80 p-3">
       <div className="mb-3 flex items-center justify-between">
-        <h2 className="font-headline text-sm font-semibold uppercase tracking-[0.12em] text-slate-200">Memoria</h2>
+        <h2 className="font-headline text-sm font-semibold uppercase tracking-[0.12em] text-cyan-300">Memoria</h2>
         <div className="flex items-center gap-2 text-xs">
           <button
             type="button"
@@ -117,7 +117,7 @@ export default function MemoryPanel({
           >
             {'<'}
           </button>
-          <span className="font-code tracking-wider text-cyan-200">
+          <span className="font-code tracking-wider text-cyan-300">
             H{toHex(inicio, 4)} - H{toHex(fin - 1, 4)}
           </span>
           <button
@@ -144,7 +144,7 @@ export default function MemoryPanel({
       <div ref={scrollRef} className="max-h-[28rem] overflow-auto rounded-lg   bg-black/20 xl:max-h-none xl:min-h-0">
         <table className="w-full border-collapse text-center text-xs">
           <thead className="sticky top-0 z-10 bg-[#111f31]">
-            <tr className="font-headline text-[9px] uppercase tracking-[0.12em] text-slate-500">
+            <tr className="font-headline text-[9px] uppercase tracking-[0.12em] text-cyan-300">
               <th className="border-b border-cyan-500/10 px-2 py-2">Address</th>
               <th className="border-b border-cyan-500/10 px-2 py-2">Value</th>
             </tr>
@@ -159,11 +159,11 @@ export default function MemoryPanel({
                   ref={esActual ? filaActualRef : null}
                   className={esActual ? 'bg-cyan-400/18' : 'odd:bg-[#0a1626] even:bg-[#0d1a2b]'}
                 >
-                  <td className="border-b border-cyan-500/10 px-2 py-1.5 font-code tracking-wider text-slate-400">
+                  <td className="border-b border-cyan-500/10 px-2 py-1.5 font-code tracking-wider text-cyan-300 text-center">
                     H{toHex(indexAbsoluto, 4)}
                   </td>
                   <td
-                    className="border-b border-cyan-500/10 px-1 py-1"
+                    className="border-b border-cyan-500/10 px-1 py-1 text-center"
                   >
                     <HexInput
                       value={ediciones[indexAbsoluto] ?? toHex(valor, 4)}

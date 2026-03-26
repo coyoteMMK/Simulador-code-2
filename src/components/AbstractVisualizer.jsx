@@ -8,7 +8,7 @@ export default function AbstractVisualizer() {
       />
       <div className="absolute inset-0 bg-gradient-to-t from-slate-900 to-transparent pointer-events-none select-none" />
       <div className="relative p-6 flex flex-col justify-end h-full">
-        <p className="font-code mb-2 text-[10px] uppercase tracking-[0.3em] text-cyan-300">
+        <p className="font-code mb-2 text-[10px] uppercase tracking-[0.3em] text-cyan-300 text-center">
           Architect_Process_Viz
         </p>
         <div className="flex items-end gap-1 h-12">

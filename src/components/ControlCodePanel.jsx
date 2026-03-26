@@ -117,13 +117,15 @@ export default function ControlCodePanel({
   return (
     <article className={`flex flex-col rounded-xl border border-cyan-500/15 bg-[#0d182a]/80 p-4 ${className}`}>
       <div className="mb-3 flex items-center justify-between">
-        <h2 className="font-headline text-sm font-semibold uppercase tracking-[0.12em] text-slate-200">Puertos I/O</h2>
-        <span className="font-code text-[10px] text-slate-500">BUS_SYNCED</span>
+        <h2 className="font-headline text-sm font-semibold uppercase tracking-[0.12em] text-cyan-300">Puertos I/O</h2>
+        <span className="font-code text-[10px] text-cyan-300">BUS_SYNCED</span>
       </div>
 
       <div className="grid grid-cols-1 gap-3">
+        {/* Entrada */}
         <div className="flex flex-col rounded-md border border-cyan-500/10 bg-[#0a1626]">
-          <div className="flex items-center justify-center gap-2 border-b border-cyan-500/10 px-2 py-1 text-xs text-slate-300">
+          <p className="px-2 pt-2 font-headline text-[11px] uppercase tracking-[0.12em] text-cyan-300 text-center">Puertos de Entrada</p>
+          <div className="flex items-center justify-center gap-2 border-b border-cyan-500/10 px-2 py-1 text-xs text-slate-300 mt-1">
             <button
               type="button"
               onClick={() => {
@@ -153,7 +155,7 @@ export default function ControlCodePanel({
               &gt;
             </button>
           </div>
-          <p className="px-2 pt-2 font-headline text-[9px] uppercase tracking-[0.12em] text-slate-500">Input ports</p>
+          {/* Título movido arriba */}
           <table className="w-full border-collapse text-center text-sm">
             <tbody>
               {puertosIpVisibles.map((puerto) => (
@@ -175,8 +177,10 @@ export default function ControlCodePanel({
           </table>
         </div>
 
+        {/* Salida */}
         <div className="flex flex-col rounded-md border border-cyan-500/10 bg-[#0a1626]">
-          <div className="flex items-center justify-center gap-2 border-b border-cyan-500/10 px-2 py-1 text-xs text-slate-300">
+          <p className="px-2 pt-2 font-headline text-[11px] uppercase tracking-[0.12em] text-cyan-300 text-center">Puertos de Salida</p>
+          <div className="flex items-center justify-center gap-2 border-b border-cyan-500/10 px-2 py-1 text-xs text-slate-300 mt-1">
             <button
               type="button"
               onClick={() => {
@@ -206,7 +210,7 @@ export default function ControlCodePanel({
               &gt;
             </button>
           </div>
-          <p className="px-2 pt-2 font-headline text-[9px] uppercase tracking-[0.12em] text-slate-500">Output ports</p>
+          {/* Título movido arriba */}
           <table className="w-full border-collapse text-center text-sm">
             <tbody>
               {puertosOpVisibles.map((puerto) => (
