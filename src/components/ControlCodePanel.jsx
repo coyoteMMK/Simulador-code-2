@@ -125,7 +125,7 @@ export default function ControlCodePanel({
         {/* Entrada */}
         <div className="flex flex-col rounded-md border border-cyan-500/10 bg-[#0a1626]">
           <div className="flex items-center border-b border-cyan-500/10 px-2 pt-3 pb-1 text-xs text-slate-300">
-            <p className="font-headline text-[16px] font-bold uppercase tracking-[0.15em] text-white text-left flex-1 m-0">ENTRADA</p>
+            <p className="font-headline text-[11px] font-bold uppercase tracking-[0.15em] text-white text-left flex-1 m-0">ENTRADA</p>
             <div className="flex-1 flex justify-center">
               <button
                 type="button"
@@ -184,7 +184,7 @@ export default function ControlCodePanel({
         {/* Salida */}
         <div className="flex flex-col rounded-md border border-cyan-500/10 bg-[#0a1626]">
           <div className="flex items-center border-b border-cyan-500/10 px-2 pt-3 pb-1 text-xs text-slate-300">
-            <p className="font-headline text-[16px] font-bold uppercase tracking-[0.15em] text-white text-left flex-1 m-0">SALIDA</p>
+            <p className="font-headline text-[11px] font-bold uppercase tracking-[0.15em] text-white text-left flex-1 m-0">SALIDA</p>
             <div className="flex-1 flex justify-center">
               <button
                 type="button"

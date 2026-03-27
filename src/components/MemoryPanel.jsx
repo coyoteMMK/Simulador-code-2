@@ -115,7 +115,8 @@ export default function MemoryPanel({
           <button
             type="button"
             onClick={onPrev}
-            className="rounded border border-cyan-500/15 bg-[#101f34] px-2 py-1 hover:bg-[#14304d]"
+            className={`rounded border border-cyan-500/15 bg-[#101f34] px-2 py-1 hover:bg-[#14304d]${inicio === 0 ? ' opacity-40 cursor-not-allowed pointer-events-none' : ''}`}
+            disabled={inicio === 0}
           >
             {'<'}
           </button>
@@ -125,7 +126,8 @@ export default function MemoryPanel({
           <button
             type="button"
             onClick={onNext}
-            className="rounded border border-cyan-500/15 bg-[#101f34] px-2 py-1 hover:bg-[#14304d]"
+            className={`rounded border border-cyan-500/15 bg-[#101f34] px-2 py-1 hover:bg-[#14304d]${fin >= 0x10000 ? ' opacity-40 cursor-not-allowed pointer-events-none' : ''}`}
+            disabled={fin >= 0x10000}
           >
             {'>'}
           </button>
