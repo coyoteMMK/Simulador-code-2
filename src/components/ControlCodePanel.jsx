@@ -143,19 +143,19 @@ export default function ControlCodePanel({
               <button
                 type="button"
                 onClick={() => setIpPage((prev) => Math.max(0, prev - 1))}
+                className={`rounded border border-cyan-500/15 bg-[#101f34] px-2 py-1 hover:bg-[#14304d]${ipPage === 0 ? ' opacity-40 cursor-not-allowed pointer-events-none' : ''}`}
                 disabled={ipPage === 0}
-                className="rounded border border-slate-600 px-2 py-1 disabled:opacity-40"
               >
-                &lt;
+                {'<'}
               </button>
-              <span>H{toHex2(ipStart)}-H{toHex2(ipEnd)}</span>
+              <span className="font-code tracking-wider text-cyan-300">H{toHex2(ipStart)}-H{toHex2(ipEnd)}</span>
               <button
                 type="button"
                 onClick={() => setIpPage((prev) => Math.min(totalPages - 1, prev + 1))}
+                className={`rounded border border-cyan-500/15 bg-[#101f34] px-2 py-1 hover:bg-[#14304d]${ipPage >= totalPages - 1 ? ' opacity-40 cursor-not-allowed pointer-events-none' : ''}`}
                 disabled={ipPage >= totalPages - 1}
-                className="rounded border border-slate-600 px-2 py-1 disabled:opacity-40"
               >
-                &gt;
+                {'>'}
               </button>
             </div>
           </div>
@@ -164,7 +164,7 @@ export default function ControlCodePanel({
             <tbody>
               {puertosIpVisibles.map((puerto) => (
                 <tr key={`ip-${puerto}`} className="odd:bg-[#0a1626] even:bg-[#0f1d30]">
-                  <td className="border-b border-cyan-500/10 px-2 py-2 font-code font-medium text-slate-400">IP{toHex2(puerto)}</td>
+                  <td className="border-b border-cyan-500/10 px-2 py-2 font-code tracking-wider text-cyan-300 uppercase text-[13px]">IP{toHex2(puerto)}</td>
                   <td
                     className={`border-b border-cyan-500/10 px-2 py-2 ${apagado ? '' : 'cursor-pointer hover:bg-cyan-900/20'}`}
                     onClick={() => {
@@ -202,19 +202,19 @@ export default function ControlCodePanel({
               <button
                 type="button"
                 onClick={() => setOpPage((prev) => Math.max(0, prev - 1))}
+                className={`rounded border border-cyan-500/15 bg-[#101f34] px-2 py-1 hover:bg-[#14304d]${opPage === 0 ? ' opacity-40 cursor-not-allowed pointer-events-none' : ''}`}
                 disabled={opPage === 0}
-                className="rounded border border-slate-600 px-2 py-1 disabled:opacity-40"
               >
-                &lt;
+                {'<'}
               </button>
-              <span>H{toHex2(opStart)}-H{toHex2(opEnd)}</span>
+              <span className="font-code tracking-wider text-cyan-300">H{toHex2(opStart)}-H{toHex2(opEnd)}</span>
               <button
                 type="button"
                 onClick={() => setOpPage((prev) => Math.min(totalPages - 1, prev + 1))}
+                className={`rounded border border-cyan-500/15 bg-[#101f34] px-2 py-1 hover:bg-[#14304d]${opPage >= totalPages - 1 ? ' opacity-40 cursor-not-allowed pointer-events-none' : ''}`}
                 disabled={opPage >= totalPages - 1}
-                className="rounded border border-slate-600 px-2 py-1 disabled:opacity-40"
               >
-                &gt;
+                {'>'}
               </button>
             </div>
           </div>
@@ -223,7 +223,7 @@ export default function ControlCodePanel({
             <tbody>
               {puertosOpVisibles.map((puerto) => (
                 <tr key={`op-${puerto}`} className="odd:bg-[#0a1626] even:bg-[#0f1d30]">
-                  <td className="border-b border-cyan-500/10 px-2 py-2 font-code font-medium text-slate-400">OP{toHex2(puerto)}</td>
+                  <td className="border-b border-cyan-500/10 px-2 py-2 font-code tracking-wider text-cyan-300 uppercase text-[13px]">OP{toHex2(puerto)}</td>
                   <td className="border-b border-cyan-500/10 px-2 py-2">
                     <HexDisplay value={toHex4(opPorts[puerto] ?? 0)} apagado={apagado} />
                   </td>
