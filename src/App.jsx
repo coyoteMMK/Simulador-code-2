@@ -979,10 +979,20 @@ function App() {
             resetEdicionesToken={resetMemoriaEdicionesToken}
             onEditMemoria={editarMemoria}
             onFormatoInvalido={() => setMensaje('Formato invalido. Use HEX de 1 a 4 digitos.')}
-            onPrev={() => setPaginaMemoria((p) => Math.max(0, p - 1))}
-            onNext={() =>
-              setPaginaMemoria((p) => ((p + 1) * TAM_BLOQUE < MEM_SIZE ? p + 1 : p))
-            }
+            onPrev={(nuevoInicio) => {
+              if (typeof nuevoInicio === 'number') {
+                setPaginaMemoria(Math.floor(nuevoInicio / TAM_BLOQUE));
+              } else {
+                setPaginaMemoria((p) => Math.max(0, p - 1));
+              }
+            }}
+            onNext={(nuevoInicio) => {
+              if (typeof nuevoInicio === 'number') {
+                setPaginaMemoria(Math.floor(nuevoInicio / TAM_BLOQUE));
+              } else {
+                setPaginaMemoria((p) => ((p + 1) * TAM_BLOQUE < MEM_SIZE ? p + 1 : p));
+              }
+            }}
           />
         </div>
       </div>

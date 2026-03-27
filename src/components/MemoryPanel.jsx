@@ -17,6 +17,8 @@ export default function MemoryPanel({
 }) {
   // Solo guarda ediciones manuales del usuario (no "copia" bloqueMemoria)
   const [ediciones, setEdiciones] = useState({});
+  const [direccionBusqueda, setDireccionBusqueda] = useState("");
+  const [errorBusqueda, setErrorBusqueda] = useState(false);
   const scrollRef = useRef(null);
   const filaActualRef = useRef(null);
   const inputRefs = useRef({});
@@ -133,12 +135,55 @@ export default function MemoryPanel({
       <div className="mb-2 flex items-center gap-2 rounded-md border border-cyan-500/10 bg-black/30 px-2 py-1.5">
         <input
           type="text"
-          value="goto addr..."
-          readOnly
-          className="font-code w-full bg-transparent text-[11px] uppercase tracking-[0.08em] text-slate-500 outline-none"
+          placeholder="Ir a dirección..."
+          className={`font-code w-full bg-transparent text-[11px] uppercase tracking-[0.08em] outline-none ${errorBusqueda ? '!text-red-400 !border-red-400 !ring-1 !ring-red-400' : 'text-slate-200'}`}
           aria-label="Buscador de memoria"
+          value={direccionBusqueda || ''}
+          onChange={e => {
+            const valor = e.target.value.trim().toUpperCase();
+            setDireccionBusqueda(valor);
+            // Validación en tiempo real: solo hex, máximo 4 dígitos
+            if (valor.length > 4 || (valor && !/^[0-9A-F]{1,4}$/.test(valor))) {
+              setErrorBusqueda(true);
+            } else {
+              setErrorBusqueda(false);
+            }
+          }}
+          onKeyDown={e => {
+            if (e.key === 'Enter') {
+              const valor = (direccionBusqueda || '').trim().toUpperCase();
+              if (valor.length === 0 || valor.length > 4 || !/^[0-9A-F]{1,4}$/.test(valor)) {
+                setErrorBusqueda(true);
+                return;
+              }
+              setErrorBusqueda(false);
+              // Solo permitir hex válido, no decimal
+              const addr = /^[0-9A-F]{1,4}$/.test(valor) ? parseInt(valor, 16) : NaN;
+              if (isNaN(addr) || addr < 0 || addr > 0xFFFF) {
+                setErrorBusqueda(true);
+                return;
+              }
+              // Si la dirección está fuera del rango visible, llama a onPrev/onNext con el nuevo inicio
+              if ((addr < inicio || addr >= fin) && (onPrev || onNext)) {
+                // Se asume que onPrev y onNext aceptan un parámetro opcional para ir a un inicio específico
+                if (addr < inicio && onPrev) {
+                  onPrev(addr);
+                } else if (addr >= fin && onNext) {
+                  onNext(addr);
+                }
+              }
+              // Enfoca la celda si está visible
+              setTimeout(() => {
+                const input = inputRefs.current[addr];
+                if (input) {
+                  input.focus();
+                  input.setSelectionRange(0, 1); // Selecciona solo el primer dígito
+                }
+              }, 150);
+            }
+          }}
         />
-        <span className="material-symbols-outlined text-sm text-slate-500">search</span>
+        <span className={`material-symbols-outlined text-sm ${errorBusqueda ? 'text-red-400' : 'text-slate-500'}`}>search</span>
       </div>
 
       <div ref={scrollRef} className="max-h-[28rem] overflow-auto rounded-lg   bg-black/20 xl:max-h-none xl:min-h-0">
