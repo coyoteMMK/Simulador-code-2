@@ -118,7 +118,6 @@ export default function ControlCodePanel({
     <article className={`flex flex-col rounded-xl border border-cyan-500/15 bg-[#0d182a]/80 p-4 ${className}`}>
       <div className="mb-3 flex items-center gap-3">
         <h2 className="font-headline text-sm font-semibold uppercase tracking-[0.12em] text-white text-left">Controles de Puertos</h2>
-        <span className="font-code text-[10px] text-cyan-300">BUS_SYNCED</span>
       </div>
 
       <div className="grid grid-cols-1 gap-3">
@@ -134,7 +133,7 @@ export default function ControlCodePanel({
                   inputRefs.current = {};
                   setToastPuertos('ip');
                 }}
-                className="rounded border border-cyan-700/45 bg-cyan-900/20 px-2 py-1 text-cyan-200"
+                className="rounded border border-cyan-700/45 bg-cyan-900/20 px-2 py-1 text-cyan-200 transition hover:bg-cyan-800/40 hover:shadow-lg"
               >
                 Mostrar todos
               </button>
@@ -163,16 +162,17 @@ export default function ControlCodePanel({
           <table className="w-full border-collapse text-center text-sm">
             <tbody>
               {puertosIpVisibles.map((puerto) => (
-                <tr key={`ip-${puerto}`} className="odd:bg-[#0a1626] even:bg-[#0f1d30]">
+                <tr
+                  key={`ip-${puerto}`}
+                  className={`odd:bg-[#0a1626] even:bg-[#0f1d30] transition hover:border-cyan-400/30 hover:bg-[#102338] ${apagado ? '' : 'cursor-pointer'}`}
+                  onClick={() => {
+                    if (!apagado) {
+                      onEditIp?.(puerto);
+                    }
+                  }}
+                >
                   <td className="border-b border-cyan-500/10 px-2 py-2 font-code tracking-wider text-cyan-300 uppercase text-[13px]">IP{toHex2(puerto)}</td>
-                  <td
-                    className={`border-b border-cyan-500/10 px-2 py-2 ${apagado ? '' : 'cursor-pointer hover:bg-cyan-900/20'}`}
-                    onClick={() => {
-                      if (!apagado) {
-                        onEditIp?.(puerto);
-                      }
-                    }}
-                  >
+                  <td className="border-b border-cyan-500/10 px-2 py-2">
                     <HexDisplay value={toHex4(ipPorts[puerto] ?? 0)} apagado={apagado} />
                   </td>
                 </tr>
@@ -193,7 +193,7 @@ export default function ControlCodePanel({
                   inputRefs.current = {};
                   setToastPuertos('op');
                 }}
-                className="rounded border border-cyan-700/45 bg-cyan-900/20 px-2 py-1 text-cyan-200"
+                className="rounded border border-cyan-700/45 bg-cyan-900/20 px-2 py-1 text-cyan-200 transition hover:bg-cyan-800/40 hover:shadow-lg"
               >
                 Mostrar todos
               </button>

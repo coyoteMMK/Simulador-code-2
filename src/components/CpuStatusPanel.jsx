@@ -17,30 +17,33 @@ export default function CpuStatusPanel({ irActualHex, pcActualHex, flags, onTogg
         </div>
       </div>
       {/* Flags en una sola fila */}
-      <div className="mt-4 flex flex-row items-center justify-center gap-6 bg-[#0d182a]/80 border border-cyan-500/10 rounded-lg py-3">
+      <div className="flex flex-row items-center justify-center">
+        <div className="flex flex-row items-center justify-center gap-6 bg-[#101d2f] border border-cyan-500/20 rounded-xl px-8 py-4">
+      
         {[
           { name: 'Z', value: flags.z },
           { name: 'S', value: flags.s },
           { name: 'C', value: flags.c },
           { name: 'V', value: flags.v },
         ].map((flag) => (
-          <div key={flag.name} className="flex flex-col items-center gap-1">
-            <span className="font-headline text-xs font-semibold text-cyan-300 mb-0.5">{flag.name}</span>
+          <div key={flag.name} className="flex flex-col items-center gap-0.5">
+            <span className="font-headline text-[10px] font-semibold text-cyan-300 mb-0.5">{flag.name}</span>
             <button
               type="button"
               onClick={() => onToggleFlag && onToggleFlag(flag.name.toLowerCase())}
               disabled={apagado}
-              className={`w-8 h-8 flex items-center justify-center rounded bg-black border border-cyan-500/20 font-code text-base transition-all shadow ${
+              className={`w-6 h-6 flex items-center justify-center rounded bg-black border border-cyan-500/20 font-code text-xs transition-all shadow ${
                 flag.value
-                  ? 'bg-lime-200 text-black border-lime-400 shadow-[0_0_10px_2px_#eaff7a88]' 
+                  ? 'bg-lime-200 text-black border-lime-400 shadow-[0_0_6px_1px_#eaff7a88]'
                   : 'text-lime-300'
               }`}
-              style={flag.value ? {boxShadow:'0 0 12px 1px #eaff7a88', background:'#eaff7a', color:'#222'} : {}}
+              style={flag.value ? {boxShadow:'0 0 8px 1px #eaff7a88', background:'#eaff7a', color:'#222'} : {}}
             >
               {flag.value ? 1 : 0}
             </button>
           </div>
         ))}
+      </div>
       </div>
     </article>
   );

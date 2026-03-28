@@ -7,7 +7,7 @@ import HexInput from './HexInput';
 import HexDisplay from './HexDisplay';
 function OpPanel({ visualOp1, visualOp2 }) {
   return (
-    <div className="flex flex-col justify-center rounded-xl border border-cyan-500/15 bg-[#0d182a]/80 px-3 py-3 gap-2 w-fit mx-auto">
+    <div className="flex flex-col justify-center rounded-xl border border-cyan-500/15 bg-[#101d2f] px-3 py-3 gap-2 w-fit mx-auto">
       <div className="flex flex-row items-center gap-2">
         <span className="font-headline text-[10px] uppercase tracking-[0.12em] text-cyan-300 text-center min-w-[38px]">D/OP1</span>
         <HexDisplay value={visualOp1} className="!w-[96px] !border-cyan-500/15 !bg-black/50 !px-1 !text-[1.15rem] !font-code !text-lime-300 text-center" />

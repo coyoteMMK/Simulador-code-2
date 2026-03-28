@@ -30,25 +30,12 @@ export default function MemoryPanel({
   }, [resetEdicionesToken]);
 
   useEffect(() => {
-    if (!resaltarEjecucion) {
-      return;
-    }
-
-    if (pc < inicio || pc >= fin) {
-      return;
-    }
-
-    const contenedor = scrollRef.current;
+    if (!resaltarEjecucion) return;
+    if (pc < inicio || pc >= fin) return;
     const filaActual = filaActualRef.current;
-
-    if (!contenedor || !filaActual) {
-      return;
+    if (filaActual) {
+      filaActual.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
-
-    const objetivo =
-      filaActual.offsetTop - contenedor.clientHeight / 2 + filaActual.clientHeight / 2;
-
-    contenedor.scrollTop = Math.max(0, objetivo);
   }, [pc, inicio, fin, resaltarEjecucion]);
 
   const textoCelda = (index, valorActual) =>
@@ -204,7 +191,7 @@ export default function MemoryPanel({
                 <tr
                   key={indexAbsoluto}
                   ref={esActual ? filaActualRef : null}
-                  className={esActual ? 'bg-cyan-400/18' : 'odd:bg-[#0a1626] even:bg-[#0d1a2b]'}
+                  className={esActual ? 'bg-fuchsia-400/20' : 'odd:bg-[#0a1626] even:bg-[#0d1a2b]'}
                 >
                   <td className="border-b border-cyan-500/10 px-2 py-1.5 font-code tracking-wider text-cyan-300 text-center">
                     H{toHex(indexAbsoluto, 4)}
