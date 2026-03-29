@@ -52,7 +52,7 @@ export default function TopSection({
   }, [codigo]);
 
   return (
-    <section className="grid gap-4 rounded-2xl border border-slate-800 bg-gradient-to-b from-slate-900/80 to-slate-950 p-4 shadow-[0_12px_40px_-20px_rgba(34,211,238,0.25)] xl:grid-cols-2 xl:items-stretch">
+    <section className={`grid gap-4 rounded-2xl border border-slate-800 bg-gradient-to-b from-slate-900/80 to-slate-950 p-4 shadow-[0_12px_40px_-20px_rgba(34,211,238,0.25)] xl:grid-cols-2 xl:items-stretch ${apagado ? 'opacity-50 grayscale pointer-events-none select-none' : ''}`}>
       <textarea
         ref={codigoRef}
         value={codigo}

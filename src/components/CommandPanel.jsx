@@ -7,7 +7,7 @@ export default function CommandPanel({
   onContinuarClick,
 }) {
   return (
-    <div className="grid grid-cols-1 gap-2 font-mono">
+    <div className={`grid grid-cols-1 gap-2 font-mono ${apagado ? 'opacity-50 grayscale pointer-events-none select-none' : ''}`}>
       <button
         onClick={onDireccionesClick}
         className="py-2.5 rounded text-[11px] font-bold uppercase tracking-widest shadow-lg transition-all hover:brightness-110 active:scale-[0.98] disabled:opacity-50 bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-blue-500/20"

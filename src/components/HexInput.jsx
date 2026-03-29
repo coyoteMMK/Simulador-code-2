@@ -164,7 +164,7 @@ export default function HexInput({
         }
       }}
       id={id}
-      value={value}
+      value={apagado ? '' : value}
       onChange={(e) => {
         const limpio = e.target.value.replace(/[^0-9a-fA-F]/g, '').slice(0, 4).toUpperCase();
         onChange(limpio);
@@ -248,7 +248,7 @@ export default function HexInput({
       }}
       onFocus={onFocus}
       disabled={disabled}
-      placeholder={placeholder}
+      placeholder={apagado ? '' : placeholder}
       maxLength={4}
       className={`font-code mx-auto block w-[96px] rounded border bg-black/60 px-2 py-0.5 text-center text-lg tracking-wider outline-none disabled:opacity-40 ${
         apagado

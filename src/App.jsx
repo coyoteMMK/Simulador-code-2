@@ -7,7 +7,6 @@ import InstructionsTerminal from './components/InstructionsTerminal';
 import RegistersPanel from './components/RegistersPanel';
 import MemoryPanel from './components/MemoryPanel';
 import ControlCodePanel from './components/ControlCodePanel';
-import AbstractVisualizer from './components/AbstractVisualizer';
 import ToastMessage from './components/ToastMessage';
 import HexEditModal from './components/HexEditModal';
 import {
@@ -929,7 +928,6 @@ function App() {
             visualOp1={visualOp1}
             visualOp2={visualOp2}
           />
-          <AbstractVisualizer/>
         </div>
 
         <div

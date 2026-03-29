@@ -115,7 +115,7 @@ export default function ControlCodePanel({
   };
 
   return (
-    <article className={`flex flex-col rounded-xl border border-cyan-500/15 bg-[#0d182a]/80 p-4 ${className}`}>
+    <article className={`flex flex-col rounded-xl border border-cyan-500/15 bg-[#0d182a]/80 p-4 ${className} ${apagado ? 'opacity-50 grayscale pointer-events-none select-none' : ''}`}>
       <div className="mb-3 flex items-center gap-3">
         <h2 className="font-headline text-sm font-semibold uppercase tracking-[0.12em] text-white text-left">Controles de Puertos</h2>
       </div>
@@ -173,7 +173,7 @@ export default function ControlCodePanel({
                 >
                   <td className="border-b border-cyan-500/10 px-2 py-2 font-code tracking-wider text-cyan-300 uppercase text-[13px]">IP{toHex2(puerto)}</td>
                   <td className="border-b border-cyan-500/10 px-2 py-2">
-                    <HexDisplay value={toHex4(ipPorts[puerto] ?? 0)} apagado={apagado} />
+                    <HexDisplay value={apagado ? '' : toHex4(ipPorts[puerto] ?? 0)} apagado={apagado} />
                   </td>
                 </tr>
               ))}
@@ -225,7 +225,7 @@ export default function ControlCodePanel({
                 <tr key={`op-${puerto}`} className="odd:bg-[#0a1626] even:bg-[#0f1d30]">
                   <td className="border-b border-cyan-500/10 px-2 py-2 font-code tracking-wider text-cyan-300 uppercase text-[13px]">OP{toHex2(puerto)}</td>
                   <td className="border-b border-cyan-500/10 px-2 py-2">
-                    <HexDisplay value={toHex4(opPorts[puerto] ?? 0)} apagado={apagado} />
+                    <HexDisplay value={apagado ? '' : toHex4(opPorts[puerto] ?? 0)} apagado={apagado} />
                   </td>
                 </tr>
               ))}
@@ -345,7 +345,7 @@ export default function ControlCodePanel({
                                 className="mx-auto"
                               />
                             ) : (
-                              <HexDisplay value={toHex4(valor)} apagado={apagado} />
+                              <HexDisplay value={apagado ? '' : toHex4(valor)} apagado={apagado} />
                             )}
                           </td>,
                         ];
