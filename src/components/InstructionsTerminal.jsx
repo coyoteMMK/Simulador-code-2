@@ -12,7 +12,7 @@ function isMemoryInit(codigo) {
   return codigo === '';
 }
 
-export default function InstructionsTerminal({ codigo, className = '' }) {
+export default function InstructionsTerminal({ codigo, className = '', lastAction, resaltarEjecucion = false, pcActual = null }) {
   // Mantener el último código no vacío para evitar borrar la terminal si solo cambia el encendido/apagado
   const [codigoMostrado, setCodigoMostrado] = useState(codigo && codigo.trim() ? codigo : lastNonEmptyCodigo);
   const [activeLine, setActiveLine] = useState(null);
@@ -22,18 +22,34 @@ export default function InstructionsTerminal({ codigo, className = '' }) {
 
   // Detectar la línea activa (la que tiene >>>)
   useEffect(() => {
-    const idx = lineas.findIndex(l => l.startsWith('>>>'));
-    if (idx !== -1) {
-      setActiveLine(idx);
-      lastActiveLine = idx;
-    } else if (lastActiveLine !== null && lastActiveLine < lineas.length) {
-      // Si la línea activa desapareció pero el código cambió, mantener el scroll en la última línea activa si existe
-      // pero solo si el usuario no ha dado a ejecutar (es decir, si el código no cambió completamente)
-      // Si el código cambió completamente (ejecutar), limpiar el indicador
+    // Buscar la línea cuyo número de instrucción coincide con el PC actual (tenga o no >>>)
+    let foundIdx = -1;
+    if (pcActual !== null) {
+      for (let i = 0; i < lineas.length; i++) {
+        const m = lineas[i].match(/\[([0-9A-Fa-f]{4})\]/);
+        if (m && parseInt(m[1], 16) === pcActual) {
+          foundIdx = i;
+          break;
+        }
+      }
+    }
+    setActiveLine(prev => {
+      if (foundIdx !== -1) {
+        return prev === foundIdx ? prev : foundIdx;
+      } else {
+        return null;
+      }
+    });
+    lastActiveLine = foundIdx !== -1 ? foundIdx : null;
+  }, [codigoMostrado, lineas.length, pcActual]);
+
+  // Limpiar línea activa si la acción no es continuar ni ejecutar
+  useEffect(() => {
+    if (lastAction && lastAction !== 'Continuar' && lastAction !== 'Ejecutar') {
       setActiveLine(null);
       lastActiveLine = null;
     }
-  }, [codigoMostrado]);
+  }, [lastAction]);
 
   useEffect(() => {
     if (codigo && codigo.trim()) {
@@ -72,23 +88,21 @@ export default function InstructionsTerminal({ codigo, className = '' }) {
           </div>
         ) : (
           lineas.map((linea, idx) => {
-            // Solo resaltar si la línea tiene '>>>' o es la activa (si existe)
-            let isHighlighted = linea.startsWith('>>>') || (activeLine !== null && idx === activeLine);
-            // Si no hay línea activa, no forzar '>>>'
-            if (activeLine === null) isHighlighted = linea.startsWith('>>>');
+            // Resaltar si es la línea activa (la que coincide con el PC), aunque no tenga >>>
+            let isActive = activeLine !== null && idx === activeLine;
             let display = linea.replace(/^>>>/, '');
-            const ref = isHighlighted ? activeRef : null;
+            const ref = isActive && resaltarEjecucion ? activeRef : null;
             return (
               <div
                 key={idx}
                 ref={ref}
                 className={`mb-1.5 flex items-center px-2 py-1 rounded transition-all ${
-                  isHighlighted
+                  isActive && resaltarEjecucion
                     ? 'bg-fuchsia-400/20 font-semibold text-fuchsia-300 gap-3'
                     : 'text-cyan-200 opacity-80 hover:opacity-100 gap-2'
                 }`}
               >
-                {isHighlighted && (
+                {isActive && resaltarEjecucion && (
                   <span className="material-symbols-outlined text-lg text-fuchsia-400 mr-1">arrow_right_alt</span>
                 )}
                 <span>{display}</span>

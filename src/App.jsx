@@ -942,7 +942,12 @@ function App() {
               onToggleFlag={toggleFlag}
               apagado={apagado}
             />
-            <InstructionsTerminal codigo={codigo} className="flex-1 min-h-0" />
+            <InstructionsTerminal 
+              codigo={codigo} 
+              className="flex-1 min-h-0" 
+              resaltarEjecucion={resaltarEjecucion}
+              pcActual={parseInt(pcActualHex, 16)}
+            />
           </div>
         </div>
 
