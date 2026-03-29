@@ -54,11 +54,12 @@ export default function CPUControlPanel({
           <div className="w-full flex flex-col items-center">
                         <label htmlFor="direccion-cpu-panel" className="mb-1 block text-xs font-semibold text-cyan-200 tracking-wide uppercase">Input:</label>
             <HexInput
-              id="direccion-cpu-panel"
-              value={direccionInput}
-              onChange={onDireccionInputChange}
-              placeholder="Escribe dirección..."
-              className="!w-[128px] !h-12 !rounded !border-2 !border-cyan-400/60 focus:!border-cyan-300 focus:!bg-[#0e223a] !bg-black/40 !px-2 !text-[1.5rem] !text-lime-300 !font-code !text-center !tracking-wider placeholder:!text-cyan-300/60 placeholder:italic transition-colors"
+                id="direccion-cpu-panel"
+                value={apagado ? '' : direccionInput}
+                onChange={onDireccionInputChange}
+                placeholder={apagado ? '' : 'Escribe dirección...'}
+                apagado={apagado}
+                className="!w-[128px] !h-12 !rounded !border-2 !border-cyan-400/60 focus:!border-cyan-300 focus:!bg-[#0e223a] !bg-black/40 !px-2 !text-[1.5rem] !text-lime-300 !font-code !text-center !tracking-wider placeholder:!text-cyan-300/60 placeholder:italic transition-colors"
             />
           </div>
         </div>

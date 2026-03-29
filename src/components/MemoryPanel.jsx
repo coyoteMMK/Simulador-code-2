@@ -160,7 +160,7 @@ export default function MemoryPanel({
         </div>
       </div>
 
-      <div className="mb-2 flex items-center gap-2 rounded-md border border-cyan-500/10 bg-black/30 px-2 py-1.5">
+      <div className="mb-2 flex items-center gap-2 rounded-md border border-cyan-500/10 bg-white/10 px-2 py-1.5">
         <input
           type="text"
           placeholder="Ir a dirección..."
@@ -281,7 +281,7 @@ export default function MemoryPanel({
         >search</span>
       </div>
 
-      <div ref={scrollRef} className="max-h-[28rem] overflow-auto rounded-lg   bg-black/20 xl:max-h-none xl:min-h-0">
+      <div ref={scrollRef} className="max-h-[28rem] overflow-auto rounded-lg bg-transparent xl:max-h-none xl:min-h-0">
         <table className="w-full border-collapse text-center text-xs">
           <thead className="sticky top-0 z-10 bg-[#111f31]">
             <tr className="font-headline text-[9px] uppercase tracking-[0.12em] text-white">
@@ -297,7 +297,7 @@ export default function MemoryPanel({
                 <tr
                   key={indexAbsoluto}
                   ref={esActual ? filaActualRef : null}
-                  className={esActual ? 'bg-fuchsia-400/20' : 'odd:bg-[#0a1626] even:bg-[#0d1a2b]'}
+                  className={esActual ? 'bg-fuchsia-400/20' : 'odd:bg-white/0 even:bg-white/0'}
                 >
                   <td className="border-b border-cyan-500/10 px-2 py-1.5 font-code tracking-wider text-cyan-300 text-center">
                     H{toHex(indexAbsoluto, 4)}
@@ -403,8 +403,8 @@ export default function MemoryPanel({
                           }
                         }
                       }}
-                      className={`mx-auto !w-[104px] !rounded-md !border-cyan-500/20 !bg-black/60 !text-center !font-code !text-base !tracking-wide !shadow-none disabled:!opacity-100 ${
-                        apagado ? '!text-slate-500' : '!text-lime-300 focus:!border-cyan-400 focus:!shadow-[0_0_0_1px_rgba(34,211,238,0.35)]'
+                      className={`mx-auto !w-[104px] !rounded-md !border-cyan-500/20 bg-white/5 !text-center !font-code !text-base !tracking-wide !shadow-none disabled:!opacity-100 ${
+                        '!text-amber-400 focus:!border-amber-400 focus:!shadow-[0_0_0_1px_rgba(251,191,36,0.35)]'
                       }`}
                     />
                   </td>
