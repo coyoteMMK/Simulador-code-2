@@ -565,6 +565,7 @@ function App() {
 
     if (continuarEnEjecucion) {
       setResaltarEjecucion(true);
+      setPaginaMemoria(Math.floor(pc / TAM_BLOQUE));
       paso();
       return;
     }
@@ -641,6 +642,7 @@ function App() {
     const inicioEjecucion = parseInt(visorDisplay.op1, 16);
     const direccionInicio = Number.isNaN(inicioEjecucion) ? pc : inicioEjecucion & 0xffff;
 
+    setPaginaMemoria(Math.floor(pc / TAM_BLOQUE));
     const resultado = ejecutarUnPaso(registros, memoria, direccionInicio, flags, ioPorts);
 
     if (resultado.panel) {

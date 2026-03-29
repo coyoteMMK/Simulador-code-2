@@ -19,6 +19,7 @@ export default function MemoryPanel({
   const [ediciones, setEdiciones] = useState({});
   const [direccionBusqueda, setDireccionBusqueda] = useState("");
   const [errorBusqueda, setErrorBusqueda] = useState(false);
+  const [navegacionManual, setNavegacionManual] = useState(false);
   const scrollRef = useRef(null);
   const filaActualRef = useRef(null);
   const inputRefs = useRef({});
@@ -37,6 +38,38 @@ export default function MemoryPanel({
       filaActual.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
   }, [pc, inicio, fin, resaltarEjecucion]);
+
+  // Permitir navegación manual siempre, pero al continuar ejecución volver al rango resaltado
+  // Permitir navegación manual, pero si resaltarEjecucion está activo y el PC sale del rango, volver automáticamente
+  // Permitir navegación manual siempre, pero al presionar continuar (resaltarEjecucion pase de false a true),
+  // solo forzar el seguimiento automático si el PC está fuera del rango
+  // Al presionar continuar, siempre forzar el rango resaltado si el PC está fuera del rango
+  // El panel siempre sigue el PC: cambia de rango automáticamente si el PC sale del rango visible
+  // Efecto para navegación automática: solo si no está en navegación manual
+  useEffect(() => {
+    if (!navegacionManual) {
+      if (pc < inicio && onPrev) {
+        onPrev(pc);
+      } else if (pc >= fin && onNext) {
+        onNext(pc);
+      }
+    }
+  }, [pc, inicio, fin, onPrev, onNext, navegacionManual]);
+
+  // Cuando se pulsa "Continuar" (resaltarEjecucion pasa de false a true), desactiva navegación manual
+  const prevResaltarRef = useRef(resaltarEjecucion);
+  useEffect(() => {
+    if (!prevResaltarRef.current && resaltarEjecucion) {
+      setNavegacionManual(false);
+      // Si el PC está fuera del rango, forzar el cambio de rango
+      if (pc < inicio && onPrev) {
+        onPrev(pc);
+      } else if (pc >= fin && onNext) {
+        onNext(pc);
+      }
+    }
+    prevResaltarRef.current = resaltarEjecucion;
+  }, [resaltarEjecucion, pc, inicio, fin, onPrev, onNext]);
 
   const textoCelda = (index, valorActual) =>
     ediciones[index] ?? toHex(valorActual, 4);
@@ -101,7 +134,10 @@ export default function MemoryPanel({
         <div className="flex items-center gap-2 text-xs">
           <button
             type="button"
-            onClick={onPrev}
+            onClick={() => {
+              setNavegacionManual(true);
+              onPrev();
+            }}
             className={`rounded border border-cyan-500/15 bg-[#101f34] px-2 py-1 hover:bg-[#14304d]${inicio === 0 ? ' opacity-40 cursor-not-allowed pointer-events-none' : ''}`}
             disabled={inicio === 0}
           >
@@ -112,7 +148,10 @@ export default function MemoryPanel({
           </span>
           <button
             type="button"
-            onClick={onNext}
+            onClick={() => {
+              setNavegacionManual(true);
+              onNext();
+            }}
             className={`rounded border border-cyan-500/15 bg-[#101f34] px-2 py-1 hover:bg-[#14304d]${fin >= 0x10000 ? ' opacity-40 cursor-not-allowed pointer-events-none' : ''}`}
             disabled={fin >= 0x10000}
           >
@@ -172,7 +211,74 @@ export default function MemoryPanel({
             }
           }}
         />
-        <span className={`material-symbols-outlined text-sm ${errorBusqueda ? 'text-red-400' : 'text-slate-500'}`}>search</span>
+        <span
+          className={`material-symbols-outlined text-sm cursor-pointer transition-colors ${errorBusqueda ? 'text-red-400' : 'text-slate-500 hover:text-cyan-400'}`}
+          tabIndex={0}
+          role="button"
+          aria-label="Buscar dirección de memoria"
+          onClick={() => {
+            setNavegacionManual(true);
+            const valor = (direccionBusqueda || '').trim().toUpperCase();
+            if (valor.length === 0 || valor.length > 4 || !/^[0-9A-F]{1,4}$/.test(valor)) {
+              setErrorBusqueda(true);
+              return;
+            }
+            setErrorBusqueda(false);
+            // Solo permitir hex válido, no decimal
+            const addr = /^[0-9A-F]{1,4}$/.test(valor) ? parseInt(valor, 16) : NaN;
+            if (isNaN(addr) || addr < 0 || addr > 0xFFFF) {
+              setErrorBusqueda(true);
+              return;
+            }
+            // Si la dirección está fuera del rango visible, llama a onPrev/onNext con el nuevo inicio
+            if ((addr < inicio || addr >= fin) && (onPrev || onNext)) {
+              if (addr < inicio && onPrev) {
+                onPrev(addr);
+              } else if (addr >= fin && onNext) {
+                onNext(addr);
+              }
+            }
+            // Enfoca la celda si está visible
+            setTimeout(() => {
+              const input = inputRefs.current[addr];
+              if (input) {
+                input.focus();
+                input.setSelectionRange(0, 1);
+              }
+            }, 150);
+          }}
+          onKeyDown={e => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              setNavegacionManual(true);
+              e.preventDefault();
+              const valor = (direccionBusqueda || '').trim().toUpperCase();
+              if (valor.length === 0 || valor.length > 4 || !/^[0-9A-F]{1,4}$/.test(valor)) {
+                setErrorBusqueda(true);
+                return;
+              }
+              setErrorBusqueda(false);
+              const addr = /^[0-9A-F]{1,4}$/.test(valor) ? parseInt(valor, 16) : NaN;
+              if (isNaN(addr) || addr < 0 || addr > 0xFFFF) {
+                setErrorBusqueda(true);
+                return;
+              }
+              if ((addr < inicio || addr >= fin) && (onPrev || onNext)) {
+                if (addr < inicio && onPrev) {
+                  onPrev(addr);
+                } else if (addr >= fin && onNext) {
+                  onNext(addr);
+                }
+              }
+              setTimeout(() => {
+                const input = inputRefs.current[addr];
+                if (input) {
+                  input.focus();
+                  input.setSelectionRange(0, 1);
+                }
+              }, 150);
+            }
+          }}
+        >search</span>
       </div>
 
       <div ref={scrollRef} className="max-h-[28rem] overflow-auto rounded-lg   bg-black/20 xl:max-h-none xl:min-h-0">
