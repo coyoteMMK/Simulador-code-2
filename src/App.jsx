@@ -675,7 +675,9 @@ function App() {
       let ioActual = resultado.io;
 
       setAutoEjecutando(true);
-      autoRunRef.current = window.setInterval(() => {
+
+      // Guardar la función en una ref para que sea accesible desde useEffect
+      autoRunRef.ejecutarPasoAuto = () => {
         const pasoAuto = ejecutarUnPaso(regsActual, memActual, pcActual, flagsActual, ioActual);
         regsActual = pasoAuto.registros;
         memActual = pasoAuto.memoria;
@@ -705,8 +707,26 @@ function App() {
           setMensaje(pasoAuto.mensaje || 'Ejecucion finalizada.');
           notificarFinPrograma('Ejecucion finalizada (HALT).');
         }
-      }, velocidadAutoMs);
+      };
+
+      autoRunRef.current = window.setInterval(autoRunRef.ejecutarPasoAuto, velocidadAutoMs);
     }
+    // --- Permitir ajustar la velocidad auto en tiempo real durante la ejecución ---
+    useEffect(() => {
+      if (!autoEjecutando || modoPasoAPaso) return;
+      if (autoRunRef.current !== null) {
+        window.clearInterval(autoRunRef.current);
+      }
+      if (typeof autoRunRef.ejecutarPasoAuto === 'function') {
+        autoRunRef.current = window.setInterval(autoRunRef.ejecutarPasoAuto, velocidadAutoMs);
+      }
+      return () => {
+        if (autoRunRef.current !== null) {
+          window.clearInterval(autoRunRef.current);
+          autoRunRef.current = null;
+        }
+      };
+    }, [velocidadAutoMs, modoPasoAPaso, autoEjecutando]);
   };
 
   const toggleEncendido = () => {
@@ -898,10 +918,10 @@ function App() {
         apagado={apagado}
       />
 
-      <div className="relative mt-16 grid min-h-0 flex-1 grid-cols-1 md:grid-cols-2 lg:grid-cols-[29fr_24fr_28fr_19fr] gap-4 overflow-hidden p-3 lg:gap-5 lg:p-5 w-full min-w-0 max-w-none">
+      <div className="main-mobile-stack relative mt-16 grid min-h-0 flex-1 grid-cols-1 md:grid-cols-2 lg:grid-cols-[29fr_24fr_28fr_19fr] gap-4 overflow-hidden p-3 lg:gap-5 lg:p-5 w-full min-w-0 max-w-none">
         {/* Intercambiadas las columnas de instrucciones y CPU control */}
         <div
-          className="min-w-0 w-full flex flex-col gap-4 overflow-x-hidden pb-1 lg:gap-5 flex-1 min-h-0"
+          className="min-w-0 w-full flex flex-col gap-4 overflow-x-hidden pb-1 lg:gap-5 flex-1 min-h-0 scroll-internal"
         >
           
           <CPUControlPanel
@@ -973,7 +993,7 @@ function App() {
           
         </div>
 
-        <div className="min-w-0 w-full overflow-auto pb-1" style={{ minWidth: '0' }}>
+        <div className="min-w-0 w-full overflow-auto pb-1 scroll-internal" style={{ minWidth: '0' }}>
           <MemoryPanel
             inicio={inicio}
             fin={fin}

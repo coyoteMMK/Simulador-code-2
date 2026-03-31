@@ -1,1 +1,36 @@
+	.main-mobile-stack > * {
+		flex: unset !important;
+		height: auto !important;
+		min-height: 0 !important;
+		width: 100% !important;
+		box-sizing: border-box;
+		overflow: visible !important;
+	}
+@media (max-width: 768px) {
+	.main-mobile-stack {
+		display: flex !important;
+		flex-direction: column !important;
+		gap: 1rem !important;
+		width: 100vw !important;
+		min-height: 100vh !important;
+		max-width: 100vw !important;
+		overflow-y: auto !important;
+		padding: 0.5rem !important;
+		box-sizing: border-box;
+	}
+	.main-mobile-stack > * {
+		width: 100% !important;
+		min-width: 0 !important;
+		max-width: 100vw !important;
+		height: auto !important;
+		min-height: 0 !important;
+		box-sizing: border-box;
+		display: block;
+		overflow: visible !important;
+	}
+	.main-mobile-stack .scroll-internal {
+		max-height: none !important;
+		overflow-y: visible !important;
+	}
+}
 /* Estilos específicos de App (si se necesitan). */

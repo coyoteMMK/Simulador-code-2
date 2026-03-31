@@ -81,7 +81,7 @@ export default function TopAppBar({
         </div>
       </div>
 
-      <div className="flex items-center gap-2 lg:gap-6">
+      <div className="flex items-center gap-2 lg:gap-6 ml-2">
         <div className="flex gap-2">
           <button
             onClick={onCargarPrograma}
