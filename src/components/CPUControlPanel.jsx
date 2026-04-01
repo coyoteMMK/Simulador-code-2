@@ -22,14 +22,6 @@ function OpPanel({ visualOp1, visualOp2, apagado }) {
 }
 
 export default function CPUControlPanel({
-  irActualHex,
-  pcActualHex,
-  flags,
-  onToggleFlag,
-  modoPasoAPaso,
-  onTogglePasoAPaso,
-  velocidadAutoMs,
-  onVelocidadAutoChange,
   apagado,
   onDireccionesClick,
   onRegistrosClick,

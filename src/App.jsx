@@ -22,7 +22,6 @@ import {
 } from './simulator/core';
 
 function App() {
-  const generarHexAleatorio = () => toHex(Math.floor(Math.random() * 0x10000), 4);
   const generarPuertoAleatorio = () => Math.floor(Math.random() * 0x10000);
   const crearPuertosAleatorios = () => ({
     ip: Array.from({ length: 256 }, () => generarPuertoAleatorio()),
@@ -80,7 +79,6 @@ function App() {
   const bloqueMemoria = useMemo(() => memoria.slice(inicio, fin), [memoria, inicio, fin]);
   const irActualHex = execDisplay.ir;
   const pcActualHex = execDisplay.pc;
-  const etiquetaOp1 = modoCarga === 'direccion' ? 'D/OP1' : 'R/OP1';
   const visualOp1 = visorDisplay.op1;
   const visualOp2 = visorDisplay.op2;
   const filasRegistros = useMemo(
@@ -137,6 +135,26 @@ function App() {
     [],
   );
 
+  // Permite ajustar la velocidad auto en tiempo real durante la ejecución.
+  useEffect(() => {
+    if (!autoEjecutando || modoPasoAPaso) return;
+
+    if (autoRunRef.current !== null) {
+      window.clearInterval(autoRunRef.current);
+    }
+
+    if (typeof autoRunRef.ejecutarPasoAuto === 'function') {
+      autoRunRef.current = window.setInterval(autoRunRef.ejecutarPasoAuto, velocidadAutoMs);
+    }
+
+    return () => {
+      if (autoRunRef.current !== null) {
+        window.clearInterval(autoRunRef.current);
+        autoRunRef.current = null;
+      }
+    };
+  }, [velocidadAutoMs, modoPasoAPaso, autoEjecutando]);
+
   // OP01 y OP02 siguen al display superior: D/OP1 y C/OP2.
   useEffect(() => {
     if (!encendido) {
@@ -150,21 +168,32 @@ function App() {
       return;
     }
 
-    setIoPorts((prev) => {
-      const opActual = prev.op ?? Array(256).fill(0);
-      const nuevoOp = [...opActual];
-      const v1 = op1Valor & 0xffff;
-      const v2 = op2Valor & 0xffff;
-      const cambio = nuevoOp[0x01] !== v1 || nuevoOp[0x02] !== v2;
-
-      if (!cambio) {
-        return prev;
+    let cancelado = false;
+    queueMicrotask(() => {
+      if (cancelado) {
+        return;
       }
 
-      nuevoOp[0x01] = v1;
-      nuevoOp[0x02] = v2;
-      return { ...prev, op: nuevoOp };
+      setIoPorts((prev) => {
+        const opActual = prev.op ?? Array(256).fill(0);
+        const nuevoOp = [...opActual];
+        const v1 = op1Valor & 0xffff;
+        const v2 = op2Valor & 0xffff;
+        const cambio = nuevoOp[0x01] !== v1 || nuevoOp[0x02] !== v2;
+
+        if (!cambio) {
+          return prev;
+        }
+
+        nuevoOp[0x01] = v1;
+        nuevoOp[0x02] = v2;
+        return { ...prev, op: nuevoOp };
+      });
     });
+
+    return () => {
+      cancelado = true;
+    };
   }, [encendido, visualOp1, visualOp2]);
 
   const notificarFinPrograma = (texto) => {
@@ -711,22 +740,6 @@ function App() {
 
       autoRunRef.current = window.setInterval(autoRunRef.ejecutarPasoAuto, velocidadAutoMs);
     }
-    // --- Permitir ajustar la velocidad auto en tiempo real durante la ejecución ---
-    useEffect(() => {
-      if (!autoEjecutando || modoPasoAPaso) return;
-      if (autoRunRef.current !== null) {
-        window.clearInterval(autoRunRef.current);
-      }
-      if (typeof autoRunRef.ejecutarPasoAuto === 'function') {
-        autoRunRef.current = window.setInterval(autoRunRef.ejecutarPasoAuto, velocidadAutoMs);
-      }
-      return () => {
-        if (autoRunRef.current !== null) {
-          window.clearInterval(autoRunRef.current);
-          autoRunRef.current = null;
-        }
-      };
-    }, [velocidadAutoMs, modoPasoAPaso, autoEjecutando]);
   };
 
   const toggleEncendido = () => {
