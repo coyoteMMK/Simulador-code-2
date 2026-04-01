@@ -85,7 +85,7 @@ export default function InstructionsTerminal({ codigo, className = '', lastActio
   }, [activeLine, codigoMostrado, resaltarEjecucion]);
 
   return (
-    <article className={`flex flex-col rounded-xl border border-cyan-500/15 bg-[#0d182a]/80 p-4 min-h-0 w-full max-h-[28rem] ${className} ${typeof apagado !== 'undefined' && apagado ? 'opacity-50 grayscale pointer-events-none select-none' : ''}`}>
+    <article className={`flex flex-col rounded-xl border border-cyan-500/15 bg-[#0d182a]/80 p-4 min-h-0 w-full max-h-[22rem] sm:max-h-[24rem] lg:max-h-[28rem] ${className} ${typeof apagado !== 'undefined' && apagado ? 'opacity-50 grayscale pointer-events-none select-none' : ''}`}>
       <div className="mb-3 flex items-center justify-between">
         <h2 className="font-headline text-sm font-semibold uppercase tracking-[0.12em] text-white">Instrucciones</h2>
       </div>

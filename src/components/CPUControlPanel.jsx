@@ -8,13 +8,13 @@ import HexDisplay from './HexDisplay';
 function OpPanel({ visualOp1, visualOp2, apagado }) {
   // Recibe apagado como prop extra
   return (
-    <div className="flex flex-col justify-center rounded-xl border border-cyan-500/15 bg-[#101d2f] px-3 py-3 gap-2 w-fit mx-auto">
+    <div className="mx-auto flex w-full max-w-[240px] flex-col justify-center gap-2 rounded-xl border border-cyan-500/15 bg-[#101d2f] px-3 py-3">
       <div className="flex flex-row items-center gap-2">
-        <span className="font-headline text-[10px] uppercase tracking-[0.12em] text-cyan-300 text-center min-w-[38px]">D/OP1</span>
+        <span className="min-w-[38px] text-center font-headline text-[10px] uppercase tracking-[0.12em] text-cyan-300">D/OP1</span>
         <HexDisplay value={apagado ? '' : visualOp1} apagado={apagado} className="!w-[96px] !border-cyan-500/15 !bg-black/50 !px-1 !text-[1.15rem] !font-code !text-lime-300 text-center" />
       </div>
       <div className="flex flex-row items-center gap-2">
-        <span className="font-headline text-[10px] uppercase tracking-[0.12em] text-cyan-300 text-center min-w-[38px]">C/OP2</span>
+        <span className="min-w-[38px] text-center font-headline text-[10px] uppercase tracking-[0.12em] text-cyan-300">C/OP2</span>
         <HexDisplay value={apagado ? '' : visualOp2} apagado={apagado} className="!w-[96px] !border-cyan-500/15 !bg-black/50 !px-1 !text-[1.15rem] !font-code !text-lime-300 text-center" />
       </div>
     </div>
@@ -49,9 +49,9 @@ export default function CPUControlPanel({
         </h2>
       </div>
       {/* Input hexadecimal arriba, botones debajo, D/OP1 y C/OP2 a la derecha en vertical */}
-      <div className="mb-4 grid grid-cols-2 gap-3 items-stretch">
-        <div className="flex flex-col justify-center h-full items-center">
-          <div className="w-full flex flex-col items-center">
+      <div className="mb-4 grid grid-cols-2 items-stretch gap-3">
+        <div className="flex h-full flex-col items-center justify-center">
+          <div className="flex w-full flex-col items-center">
                         <label htmlFor="direccion-cpu-panel" className="mb-1 block text-xs font-semibold text-cyan-200 tracking-wide uppercase">Input:</label>
             <HexInput
                 id="direccion-cpu-panel"
@@ -59,11 +59,11 @@ export default function CPUControlPanel({
                 onChange={onDireccionInputChange}
                 placeholder={apagado ? '' : 'Escribe dirección...'}
                 apagado={apagado}
-                className="!w-[128px] !h-12 !rounded !border-2 !border-cyan-400/60 focus:!border-cyan-300 focus:!bg-[#0e223a] !bg-black/40 !px-2 !text-[1.5rem] !text-lime-300 !font-code !text-center !tracking-wider placeholder:!text-cyan-300/60 placeholder:italic transition-colors"
+                className="!h-12 !w-full !max-w-[128px] !rounded !border-2 !border-cyan-400/60 !bg-black/40 !px-2 !text-center !font-code !text-[1.5rem] !tracking-wider !text-lime-300 placeholder:!text-cyan-300/60 placeholder:italic focus:!border-cyan-300 focus:!bg-[#0e223a] transition-colors"
             />
           </div>
         </div>
-        <div className="flex items-start h-full"><OpPanel visualOp1={visualOp1} visualOp2={visualOp2} apagado={apagado} /></div>
+        <div className="flex h-full items-start"><OpPanel visualOp1={visualOp1} visualOp2={visualOp2} apagado={apagado} /></div>
       </div>
 
       {/* Botones de acción y navegación */}

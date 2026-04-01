@@ -18,7 +18,7 @@ export default function CpuStatusPanel({ irActualHex, pcActualHex, flags, onTogg
       </div>
       {/* Flags en una sola fila */}
       <div className="flex flex-row items-center justify-center">
-        <div className="flex flex-row items-center justify-center gap-6 bg-[#101d2f] border border-cyan-500/20 rounded-xl px-8 py-4">
+        <div className="flex flex-row items-center justify-center gap-6 rounded-xl border border-cyan-500/20 bg-[#101d2f] px-8 py-4">
       
         {[
           { name: 'Z', value: flags.z },

@@ -250,7 +250,7 @@ export default function HexInput({
       disabled={disabled}
       placeholder={apagado ? '' : placeholder}
       maxLength={4}
-      className={`font-code mx-auto block w-[96px] rounded border bg-black/60 px-2 py-0.5 text-center text-lg tracking-wider outline-none disabled:opacity-40 ${
+      className={`font-code mx-auto block w-full max-w-[96px] rounded border bg-black/60 px-2 py-0.5 text-center text-base tracking-wider outline-none disabled:opacity-40 sm:text-lg ${
         apagado
           ? 'border-cyan-500/10 text-transparent placeholder:text-transparent'
           : 'border-cyan-500/20 text-lime-300 placeholder:text-lime-700/70 focus:border-cyan-400 focus:shadow-[0_0_12px_-4px_rgba(34,211,238,0.5)]'

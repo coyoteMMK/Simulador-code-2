@@ -10,7 +10,7 @@ export default function RegistersPanel({ registros, filasRegistros, onEditRegist
 
       <div className="flex flex-col gap-2">
         {filasRegistros.map((fila, filaIdx) => (
-          <div key={`fila-${filaIdx}`} className="grid grid-cols-4 gap-2">
+          <div key={`fila-${filaIdx}`} className="grid grid-cols-2 gap-2 sm:grid-cols-4">
             {fila.map((idx) => (
               <button
                 type="button"

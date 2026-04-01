@@ -894,7 +894,7 @@ function App() {
 
   return (
 
-    <main className="relative flex min-h-screen w-full flex-col overflow-y-auto overflow-x-hidden bg-[#030915] text-slate-100 md:h-screen md:w-screen md:overflow-hidden">
+    <main className="relative flex min-h-screen w-full flex-col overflow-y-auto overflow-x-hidden bg-[#030915] text-slate-100 md:h-screen md:overflow-hidden">
       <div className="pointer-events-none absolute inset-0 opacity-70">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_10%_0%,rgba(27,168,255,0.16),transparent_35%),radial-gradient(circle_at_90%_100%,rgba(13,83,255,0.15),transparent_35%)]" />
         <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(10,20,36,0.35),rgba(3,8,16,0.85))]" />
@@ -970,7 +970,7 @@ function App() {
           </div>
         </div>
 
-        <div className="min-w-0 w-full flex md:min-h-0 flex-col gap-4 overflow-visible md:overflow-auto pb-1 lg:gap-5">
+        <div className="min-w-0 w-full flex flex-col gap-4 overflow-visible pb-1 lg:gap-5 md:min-h-0 md:h-full md:overflow-auto">
           <RegistersPanel
             registros={registros}
             filasRegistros={filasRegistros}
@@ -992,7 +992,7 @@ function App() {
           
         </div>
 
-        <div className="min-w-0 w-full overflow-visible md:overflow-auto pb-1 scroll-internal" style={{ minWidth: '0' }}>
+        <div className="min-w-0 w-full overflow-visible pb-1 scroll-internal md:min-h-0 md:h-full md:overflow-auto" style={{ minWidth: '0' }}>
           <MemoryPanel
             inicio={inicio}
             fin={fin}

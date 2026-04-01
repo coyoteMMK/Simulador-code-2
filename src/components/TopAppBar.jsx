@@ -101,7 +101,7 @@ export default function TopAppBar({
         </div>
       </div>
 
-      <div className="hidden h-16 items-center justify-between sm:flex">
+      <div className="hidden h-16 items-center justify-between gap-3 overflow-x-auto sm:flex">
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-3 rounded-lg border border-cyan-500/15 bg-[#0b1628]/70 px-3 py-1.5">
             <span

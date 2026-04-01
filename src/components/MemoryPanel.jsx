@@ -409,7 +409,7 @@ export default function MemoryPanel({
                           }
                         }
                       }}
-                      className={`mx-auto !w-[104px] !rounded-md !border-cyan-500/20 bg-white/5 !text-center !font-code !text-base !tracking-wide !shadow-none disabled:!opacity-100 ${
+                      className={`mx-auto !w-full !max-w-[104px] !rounded-md !border-cyan-500/20 bg-white/5 !text-center !font-code !text-sm !tracking-wide !shadow-none disabled:!opacity-100 sm:!text-base ${
                         '!text-amber-400 focus:!border-amber-400 focus:!shadow-[0_0_0_1px_rgba(251,191,36,0.35)]'
                       }`}
                     />

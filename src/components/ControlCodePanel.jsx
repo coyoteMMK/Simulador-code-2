@@ -159,26 +159,28 @@ export default function ControlCodePanel({
             </div>
           </div>
           {/* Título movido arriba */}
-          <table className="w-full border-collapse text-center text-sm">
-            <tbody>
-              {puertosIpVisibles.map((puerto) => (
-                <tr
-                  key={`ip-${puerto}`}
-                  className={`odd:bg-[#0a1626] even:bg-[#0f1d30] transition hover:border-cyan-400/30 hover:bg-[#102338] ${apagado ? '' : 'cursor-pointer'}`}
-                  onClick={() => {
-                    if (!apagado) {
-                      onEditIp?.(puerto);
-                    }
-                  }}
-                >
-                  <td className="border-b border-cyan-500/10 px-2 py-2 font-code tracking-wider text-cyan-300 uppercase text-[13px]">IP{toHex2(puerto)}</td>
-                  <td className="border-b border-cyan-500/10 px-2 py-2">
-                    <HexDisplay value={apagado ? '' : toHex4(ipPorts[puerto] ?? 0)} apagado={apagado} />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <div className="overflow-x-auto">
+            <table className="min-w-[220px] w-full border-collapse text-center text-sm">
+              <tbody>
+                {puertosIpVisibles.map((puerto) => (
+                  <tr
+                    key={`ip-${puerto}`}
+                    className={`odd:bg-[#0a1626] even:bg-[#0f1d30] transition hover:border-cyan-400/30 hover:bg-[#102338] ${apagado ? '' : 'cursor-pointer'}`}
+                    onClick={() => {
+                      if (!apagado) {
+                        onEditIp?.(puerto);
+                      }
+                    }}
+                  >
+                    <td className="border-b border-cyan-500/10 px-2 py-2 font-code tracking-wider text-cyan-300 uppercase text-[13px]">IP{toHex2(puerto)}</td>
+                    <td className="border-b border-cyan-500/10 px-2 py-2">
+                      <HexDisplay value={apagado ? '' : toHex4(ipPorts[puerto] ?? 0)} apagado={apagado} />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
 
         {/* Salida */}
@@ -219,18 +221,20 @@ export default function ControlCodePanel({
             </div>
           </div>
           {/* Título movido arriba */}
-          <table className="w-full border-collapse text-center text-sm">
-            <tbody>
-              {puertosOpVisibles.map((puerto) => (
-                <tr key={`op-${puerto}`} className="odd:bg-[#0a1626] even:bg-[#0f1d30]">
-                  <td className="border-b border-cyan-500/10 px-2 py-2 font-code tracking-wider text-cyan-300 uppercase text-[13px]">OP{toHex2(puerto)}</td>
-                  <td className="border-b border-cyan-500/10 px-2 py-2">
-                    <HexDisplay value={apagado ? '' : toHex4(opPorts[puerto] ?? 0)} apagado={apagado} />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <div className="overflow-x-auto">
+            <table className="min-w-[220px] w-full border-collapse text-center text-sm">
+              <tbody>
+                {puertosOpVisibles.map((puerto) => (
+                  <tr key={`op-${puerto}`} className="odd:bg-[#0a1626] even:bg-[#0f1d30]">
+                    <td className="border-b border-cyan-500/10 px-2 py-2 font-code tracking-wider text-cyan-300 uppercase text-[13px]">OP{toHex2(puerto)}</td>
+                    <td className="border-b border-cyan-500/10 px-2 py-2">
+                      <HexDisplay value={apagado ? '' : toHex4(opPorts[puerto] ?? 0)} apagado={apagado} />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
 
@@ -244,7 +248,7 @@ export default function ControlCodePanel({
           }}
         >
           <div
-            className="w-[min(96vw,860px)] overflow-hidden rounded-xl border border-cyan-500/20 bg-[#0b1526] shadow-[0_24px_70px_-28px_rgba(15,23,42,0.9)]"
+            className="w-[min(97vw,860px)] overflow-hidden rounded-xl border border-cyan-500/20 bg-[#0b1526] shadow-[0_24px_70px_-28px_rgba(15,23,42,0.9)]"
             onClick={(event) => event.stopPropagation()}
           >
             <div className="flex items-center justify-between border-b border-cyan-500/20 bg-[#111f31] px-3 py-2">
@@ -264,7 +268,7 @@ export default function ControlCodePanel({
               </button>
             </div>
 
-            <div className="max-h-[72vh] overflow-auto p-3">
+            <div className="max-h-[72vh] overflow-auto p-2 sm:p-3">
               {toastEsEntrada ? (
                 <p className="mb-2 text-xs text-cyan-300">Edita como memoria: escribes HEX y confirma con Enter, blur o al completar 4 digitos.</p>
               ) : (

@@ -62,7 +62,7 @@ export default function TopSection({
       />
 
       <div className="rounded-xl border border-slate-700/80 bg-slate-950/80 p-3">
-        <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_220px]">
+        <div className="grid gap-3 xl:grid-cols-[minmax(0,1fr)_220px]">
           <div className="grid gap-3 sm:grid-cols-[1fr_1fr]">
             <div className="space-y-2 rounded-lg border border-slate-800 bg-slate-900/70 p-2">
               <span className="font-headline text-[12px] font-semibold uppercase tracking-[0.12em] text-white block mb-2">Controles</span>
@@ -241,11 +241,11 @@ export default function TopSection({
 
           <div className="flex flex-col gap-2 rounded-lg border border-slate-800 bg-slate-900/70 p-2">
             <div className="space-y-2 rounded-md border border-slate-700 bg-slate-950/80 p-2">
-              <div className="grid grid-cols-[auto_96px] items-center gap-2">
+              <div className="grid grid-cols-[minmax(0,1fr)_minmax(84px,96px)] items-center gap-2">
                 <span className="text-sm text-indigo-300">{etiquetaOp1}</span>
                 <HexDisplay value={visualOp1} apagado={apagado} />
               </div>
-              <div className="grid grid-cols-[auto_96px] items-center gap-2">
+              <div className="grid grid-cols-[minmax(0,1fr)_minmax(84px,96px)] items-center gap-2">
                 <span className="text-sm text-indigo-300">C/OP2</span>
                 <HexDisplay value={visualOp2} apagado={apagado} />
               </div>
