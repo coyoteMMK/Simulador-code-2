@@ -65,23 +65,31 @@ export default function InstructionsTerminal({ codigo, className = '', lastActio
   }, [codigo]);
 
   useEffect(() => {
+    if (!resaltarEjecucion) {
+      return;
+    }
+
     if (activeRef.current && scrollRef.current) {
       const parent = scrollRef.current;
       const child = activeRef.current;
       const parentRect = parent.getBoundingClientRect();
       const childRect = child.getBoundingClientRect();
-      if (childRect.top < parentRect.top || childRect.bottom > parentRect.bottom) {
-        child.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }
+      const targetTop =
+        childRect.top - parentRect.top + parent.scrollTop - parent.clientHeight / 2 + childRect.height / 2;
+
+      parent.scrollTo({
+        top: Math.max(0, targetTop),
+        behavior: 'smooth',
+      });
     }
-  }, [activeLine, codigoMostrado]);
+  }, [activeLine, codigoMostrado, resaltarEjecucion]);
 
   return (
-    <article className={`flex flex-col rounded-xl border border-cyan-500/15 bg-[#0d182a]/80 p-4 min-h-0 h-full w-full ${className} ${typeof apagado !== 'undefined' && apagado ? 'opacity-50 grayscale pointer-events-none select-none' : ''}`}>
+    <article className={`flex flex-col rounded-xl border border-cyan-500/15 bg-[#0d182a]/80 p-4 min-h-0 w-full max-h-[28rem] ${className} ${typeof apagado !== 'undefined' && apagado ? 'opacity-50 grayscale pointer-events-none select-none' : ''}`}>
       <div className="mb-3 flex items-center justify-between">
         <h2 className="font-headline text-sm font-semibold uppercase tracking-[0.12em] text-white">Instrucciones</h2>
       </div>
-      <div ref={scrollRef} className="font-code flex-1 overflow-y-auto text-[15px] leading-relaxed">
+      <div ref={scrollRef} className="font-code min-h-0 flex-1 overflow-y-auto text-[15px] leading-relaxed">
         {lineas.length === 0 ? (
           <div className="mt-4 text-center text-slate-500">
             No hay instrucciones cargadas

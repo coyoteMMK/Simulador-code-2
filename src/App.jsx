@@ -882,11 +882,19 @@ function App() {
     }));
   };
 
+  const toggleModoPasoAPaso = () => {
+    detenerAutoEjecucion();
+    setModoPasoAPaso((prev) => !prev);
+    setContinuarEnEjecucion(false);
+    setResaltarEjecucion(false);
+    setMensaje('Ejecucion detenida');
+  };
+
   const apagado = !encendido;
 
   return (
 
-    <main className="relative flex h-screen w-screen flex-col overflow-hidden bg-[#030915] text-slate-100">
+    <main className="relative flex min-h-screen w-full flex-col overflow-y-auto overflow-x-hidden bg-[#030915] text-slate-100 md:h-screen md:w-screen md:overflow-hidden">
       <div className="pointer-events-none absolute inset-0 opacity-70">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_10%_0%,rgba(27,168,255,0.16),transparent_35%),radial-gradient(circle_at_90%_100%,rgba(13,83,255,0.15),transparent_35%)]" />
         <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(10,20,36,0.35),rgba(3,8,16,0.85))]" />
@@ -908,20 +916,16 @@ function App() {
         inicializarAlEncender={inicializarAlEncender}
         setInicializarAlEncender={setInicializarAlEncender}
         modoPasoAPaso={modoPasoAPaso}
-        onTogglePasoAPaso={() => {
-          detenerAutoEjecucion();
-          setModoPasoAPaso((prev) => !prev);
-          setContinuarEnEjecucion(false);
-        }}
+        onTogglePasoAPaso={toggleModoPasoAPaso}
         velocidadAutoMs={velocidadAutoMs}
         onVelocidadAutoChange={setVelocidadAutoMs}
         apagado={apagado}
       />
 
-      <div className="main-mobile-stack relative mt-16 grid min-h-0 flex-1 grid-cols-1 md:grid-cols-2 lg:grid-cols-[29fr_24fr_28fr_19fr] gap-4 overflow-hidden p-3 lg:gap-5 lg:p-5 w-full min-w-0 max-w-none">
+      <div className="main-mobile-stack relative mt-28 sm:mt-16 grid md:min-h-0 md:flex-1 grid-cols-1 md:grid-cols-2 lg:grid-cols-[29fr_24fr_28fr_19fr] gap-4 overflow-visible md:overflow-hidden p-3 lg:gap-5 lg:p-5 w-full min-w-0 max-w-none">
         {/* Intercambiadas las columnas de instrucciones y CPU control */}
         <div
-          className="min-w-0 w-full flex flex-col gap-4 overflow-x-hidden pb-1 lg:gap-5 flex-1 min-h-0 scroll-internal"
+          className="min-w-0 w-full flex flex-col gap-4 overflow-x-hidden overflow-y-visible pb-1 lg:gap-5 md:flex-1 md:min-h-0 md:overflow-y-auto"
         >
           
           <CPUControlPanel
@@ -930,11 +934,7 @@ function App() {
             flags={flags}
             onToggleFlag={toggleFlag}
             modoPasoAPaso={modoPasoAPaso}
-            onTogglePasoAPaso={() => {
-              detenerAutoEjecucion();
-              setModoPasoAPaso((prev) => !prev);
-              setContinuarEnEjecucion(false);
-            }}
+            onTogglePasoAPaso={toggleModoPasoAPaso}
             velocidadAutoMs={velocidadAutoMs}
             onVelocidadAutoChange={setVelocidadAutoMs}
             apagado={apagado}
@@ -951,10 +951,9 @@ function App() {
         </div>
 
         <div
-          className="min-w-0 w-full flex flex-col gap-4 overflow-x-hidden pb-1 lg:gap-5"
-          style={{ height: '100%', maxHeight: '100%', overflowY: 'auto' }}
+          className="min-w-0 w-full flex flex-col gap-4 overflow-x-hidden pb-1 lg:gap-5 md:h-full md:max-h-full md:overflow-y-auto"
         >
-          <div className="flex-1 min-h-0 flex flex-col">
+          <div className="md:flex-1 md:min-h-0 flex flex-col">
             <CpuStatusPanel
               irActualHex={irActualHex}
               pcActualHex={pcActualHex}
@@ -964,14 +963,14 @@ function App() {
             />
             <InstructionsTerminal 
               codigo={codigo} 
-              className="flex-1 min-h-0" 
+              className="md:flex-1 md:min-h-0" 
               resaltarEjecucion={resaltarEjecucion}
               pcActual={parseInt(pcActualHex, 16)}
             />
           </div>
         </div>
 
-        <div className="min-w-0 w-full flex min-h-0 flex-col gap-4 overflow-auto pb-1 lg:gap-5">
+        <div className="min-w-0 w-full flex md:min-h-0 flex-col gap-4 overflow-visible md:overflow-auto pb-1 lg:gap-5">
           <RegistersPanel
             registros={registros}
             filasRegistros={filasRegistros}
@@ -993,7 +992,7 @@ function App() {
           
         </div>
 
-        <div className="min-w-0 w-full overflow-auto pb-1 scroll-internal" style={{ minWidth: '0' }}>
+        <div className="min-w-0 w-full overflow-visible md:overflow-auto pb-1 scroll-internal" style={{ minWidth: '0' }}>
           <MemoryPanel
             inicio={inicio}
             fin={fin}

@@ -33,9 +33,15 @@ export default function MemoryPanel({
   useEffect(() => {
     if (!resaltarEjecucion) return;
     if (pc < inicio || pc >= fin) return;
+    if (!scrollRef.current) return;
     const filaActual = filaActualRef.current;
     if (filaActual) {
-      filaActual.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      const parent = scrollRef.current;
+      const targetTop = filaActual.offsetTop - parent.clientHeight / 2 + filaActual.clientHeight / 2;
+      parent.scrollTo({
+        top: Math.max(0, targetTop),
+        behavior: 'smooth',
+      });
     }
   }, [pc, inicio, fin, resaltarEjecucion]);
 
