@@ -115,7 +115,7 @@ export default function ControlCodePanel({
   };
 
   return (
-    <article className={`flex flex-col rounded-xl border border-cyan-500/15 bg-[#0d182a]/80 p-4 ${className} ${apagado ? 'opacity-50 grayscale pointer-events-none select-none' : ''}`}>
+    <article className={`flex flex-col rounded-xl border border-cyan-500/15 bg-[#0d182a]/80 p-4 transition-all duration-500 ${apagado ? 'grayscale pointer-events-none' : ''}`}>
       <div className="mb-3 flex items-center gap-3">
         <h2 className="font-headline text-sm font-semibold uppercase tracking-[0.12em] text-white text-left">Controles de Puertos</h2>
       </div>

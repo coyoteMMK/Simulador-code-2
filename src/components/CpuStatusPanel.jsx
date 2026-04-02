@@ -2,7 +2,7 @@ import HexDisplay from './HexDisplay';
 
 export default function CpuStatusPanel({ irActualHex, pcActualHex, flags, onToggleFlag, apagado }) {
   return (
-    <article className={`flex flex-col rounded-xl border border-cyan-500/15 bg-[#0d182a]/80 p-4 w-full mb-4 gap-4 items-stretch ${typeof apagado !== 'undefined' && apagado ? 'opacity-50 grayscale pointer-events-none select-none' : ''}`}>
+    <article className={`flex flex-col rounded-xl border border-cyan-500/15 bg-[#0d182a]/80 p-4 w-full mb-4 gap-4 items-stretch transition-all duration-500 ${apagado ? 'grayscale pointer-events-none' : ''}`}>
       <h2 className="font-headline text-sm font-semibold uppercase tracking-[0.12em] text-white mb-2 text-left">CPU Status</h2>
       <div className="grid grid-cols-2 gap-4">
         {/* IR */}

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+﻿import { useEffect, useRef, useState } from 'react';
 import { toHex } from '../simulator/core';
 import HexInput from './HexInput';
 
@@ -45,13 +45,13 @@ export default function MemoryPanel({
     }
   }, [pc, inicio, fin, resaltarEjecucion]);
 
-  // Permitir navegación manual siempre, pero al continuar ejecución volver al rango resaltado
-  // Permitir navegación manual, pero si resaltarEjecucion está activo y el PC sale del rango, volver automáticamente
-  // Permitir navegación manual siempre, pero al presionar continuar (resaltarEjecucion pase de false a true),
-  // solo forzar el seguimiento automático si el PC está fuera del rango
-  // Al presionar continuar, siempre forzar el rango resaltado si el PC está fuera del rango
-  // El panel siempre sigue el PC: cambia de rango automáticamente si el PC sale del rango visible
-  // Efecto para navegación automática: solo si no está en navegación manual
+  // Permitir navegaciÃ³n manual siempre, pero al continuar ejecuciÃ³n volver al rango resaltado
+  // Permitir navegaciÃ³n manual, pero si resaltarEjecucion estÃ¡ activo y el PC sale del rango, volver automÃ¡ticamente
+  // Permitir navegaciÃ³n manual siempre, pero al presionar continuar (resaltarEjecucion pase de false a true),
+  // solo forzar el seguimiento automÃ¡tico si el PC estÃ¡ fuera del rango
+  // Al presionar continuar, siempre forzar el rango resaltado si el PC estÃ¡ fuera del rango
+  // El panel siempre sigue el PC: cambia de rango automÃ¡ticamente si el PC sale del rango visible
+  // Efecto para navegaciÃ³n automÃ¡tica: solo si no estÃ¡ en navegaciÃ³n manual
   useEffect(() => {
     if (!navegacionManual) {
       if (pc < inicio && onPrev) {
@@ -62,12 +62,12 @@ export default function MemoryPanel({
     }
   }, [pc, inicio, fin, onPrev, onNext, navegacionManual]);
 
-  // Cuando se pulsa "Continuar" (resaltarEjecucion pasa de false a true), desactiva navegación manual
+  // Cuando se pulsa "Continuar" (resaltarEjecucion pasa de false a true), desactiva navegaciÃ³n manual
   const prevResaltarRef = useRef(resaltarEjecucion);
   useEffect(() => {
     if (!prevResaltarRef.current && resaltarEjecucion) {
       setNavegacionManual(false);
-      // Si el PC está fuera del rango, forzar el cambio de rango
+      // Si el PC estÃ¡ fuera del rango, forzar el cambio de rango
       if (pc < inicio && onPrev) {
         onPrev(pc);
       } else if (pc >= fin && onNext) {
@@ -169,14 +169,14 @@ export default function MemoryPanel({
       <div className="mb-2 flex items-center gap-2 rounded-md border border-cyan-500/10 bg-white/10 px-2 py-1.5">
         <input
           type="text"
-          placeholder="Ir a dirección..."
+          placeholder="Ir a direcciÃ³n..."
           className={`font-code w-full bg-transparent text-[11px] uppercase tracking-[0.08em] outline-none ${errorBusqueda ? '!text-red-400 !border-red-400 !ring-1 !ring-red-400' : 'text-slate-200'}`}
           aria-label="Buscador de memoria"
           value={direccionBusqueda || ''}
           onChange={e => {
             const valor = e.target.value.trim().toUpperCase();
             setDireccionBusqueda(valor);
-            // Validación en tiempo real: solo hex, máximo 4 dígitos
+            // ValidaciÃ³n en tiempo real: solo hex, mÃ¡ximo 4 dÃ­gitos
             if (valor.length > 4 || (valor && !/^[0-9A-F]{1,4}$/.test(valor))) {
               setErrorBusqueda(true);
             } else {
@@ -191,27 +191,27 @@ export default function MemoryPanel({
                 return;
               }
               setErrorBusqueda(false);
-              // Solo permitir hex válido, no decimal
+              // Solo permitir hex vÃ¡lido, no decimal
               const addr = /^[0-9A-F]{1,4}$/.test(valor) ? parseInt(valor, 16) : NaN;
               if (isNaN(addr) || addr < 0 || addr > 0xFFFF) {
                 setErrorBusqueda(true);
                 return;
               }
-              // Si la dirección está fuera del rango visible, llama a onPrev/onNext con el nuevo inicio
+              // Si la direcciÃ³n estÃ¡ fuera del rango visible, llama a onPrev/onNext con el nuevo inicio
               if ((addr < inicio || addr >= fin) && (onPrev || onNext)) {
-                // Se asume que onPrev y onNext aceptan un parámetro opcional para ir a un inicio específico
+                // Se asume que onPrev y onNext aceptan un parÃ¡metro opcional para ir a un inicio especÃ­fico
                 if (addr < inicio && onPrev) {
                   onPrev(addr);
                 } else if (addr >= fin && onNext) {
                   onNext(addr);
                 }
               }
-              // Enfoca la celda si está visible
+              // Enfoca la celda si estÃ¡ visible
               setTimeout(() => {
                 const input = inputRefs.current[addr];
                 if (input) {
                   input.focus();
-                  input.setSelectionRange(0, 1); // Selecciona solo el primer dígito
+                  input.setSelectionRange(0, 1); // Selecciona solo el primer dÃ­gito
                 }
               }, 150);
             }
@@ -221,7 +221,7 @@ export default function MemoryPanel({
           className={`material-symbols-outlined text-sm cursor-pointer transition-colors ${errorBusqueda ? 'text-red-400' : 'text-slate-500 hover:text-cyan-400'}`}
           tabIndex={0}
           role="button"
-          aria-label="Buscar dirección de memoria"
+          aria-label="Buscar direcciÃ³n de memoria"
           onClick={() => {
             setNavegacionManual(true);
             const valor = (direccionBusqueda || '').trim().toUpperCase();
@@ -230,13 +230,13 @@ export default function MemoryPanel({
               return;
             }
             setErrorBusqueda(false);
-            // Solo permitir hex válido, no decimal
+            // Solo permitir hex vÃ¡lido, no decimal
             const addr = /^[0-9A-F]{1,4}$/.test(valor) ? parseInt(valor, 16) : NaN;
             if (isNaN(addr) || addr < 0 || addr > 0xFFFF) {
               setErrorBusqueda(true);
               return;
             }
-            // Si la dirección está fuera del rango visible, llama a onPrev/onNext con el nuevo inicio
+            // Si la direcciÃ³n estÃ¡ fuera del rango visible, llama a onPrev/onNext con el nuevo inicio
             if ((addr < inicio || addr >= fin) && (onPrev || onNext)) {
               if (addr < inicio && onPrev) {
                 onPrev(addr);
@@ -244,7 +244,7 @@ export default function MemoryPanel({
                 onNext(addr);
               }
             }
-            // Enfoca la celda si está visible
+            // Enfoca la celda si estÃ¡ visible
             setTimeout(() => {
               const input = inputRefs.current[addr];
               if (input) {
@@ -291,7 +291,7 @@ export default function MemoryPanel({
         <table className="w-full border-collapse text-center text-xs">
           <thead className="sticky top-0 z-10 bg-[#111f31]">
             <tr className="font-headline text-[9px] uppercase tracking-[0.12em] text-white">
-              <th className="border-b border-cyan-500/10 px-2 py-2">Dirección</th>
+              <th className="border-b border-cyan-500/10 px-2 py-2">DirecciÃ³n</th>
               <th className="border-b border-cyan-500/10 px-2 py-2">Valor</th>
             </tr>
           </thead>
@@ -331,7 +331,7 @@ export default function MemoryPanel({
                         if (nuevoValor.length === 4) {
                           confirmarEdicion(indexAbsoluto, valor, nuevoValor);
 
-                          // Solo avanza automáticamente al completar desde menos de 4 dígitos.
+                          // Solo avanza automÃ¡ticamente al completar desde menos de 4 dÃ­gitos.
                           if (valorPrevio.length < 4) {
                             enfocarSiguienteCelda(indexAbsoluto);
                           }
@@ -339,7 +339,7 @@ export default function MemoryPanel({
                       }}
                       onBlur={() => confirmarEdicion(indexAbsoluto, valor)}
                       onCursorAfterLastDigit={(nuevoValor) => {
-                        // La confirmación ya ocurre en onChange cuando hay 4 dígitos.
+                        // La confirmaciÃ³n ya ocurre en onChange cuando hay 4 dÃ­gitos.
                         enfocarSiguienteCelda(indexAbsoluto);
                       }}
                       onKeyDown={(e) => {
@@ -423,3 +423,6 @@ export default function MemoryPanel({
     </article>
   );
 }
+
+
+

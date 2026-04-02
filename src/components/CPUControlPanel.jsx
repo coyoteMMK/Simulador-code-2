@@ -34,7 +34,7 @@ export default function CPUControlPanel({
   visualOp2
 }) {
   return (
-    <article className={`flex flex-col rounded-xl border border-cyan-500/15 bg-[#0d182a]/80 p-4 w-full min-w-0 ${apagado ? 'opacity-50 grayscale pointer-events-none select-none' : ''}`}>
+    <article className={`flex flex-col rounded-xl border border-cyan-500/15 bg-[#0d182a]/80 p-4 w-full min-w-0 transition-all duration-500 ${apagado ? 'grayscale pointer-events-none' : ''}`}>
       <div className="mb-4 flex items-center justify-between">
         <h2 className="font-headline text-sm font-semibold uppercase tracking-[0.12em] text-white">
           CPU Control

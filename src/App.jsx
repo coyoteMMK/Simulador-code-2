@@ -965,7 +965,7 @@ function App() {
         </div>
 
         <div
-          className="min-w-0 w-full flex flex-col gap-4 overflow-x-hidden pb-1 lg:gap-5 md:h-full md:max-h-full md:overflow-y-auto"
+          className="min-w-0 w-full flex flex-col gap-4 overflow-x-hidden pb-1 lg:gap-5 md:h-full md:max-h-full md:overflow-y-auto opacity-100"
         >
           <div className="md:flex-1 md:min-h-0 flex flex-col">
             <CpuStatusPanel
@@ -990,7 +990,6 @@ function App() {
             filasRegistros={filasRegistros}
             onEditRegistro={editarRegistro}
             apagado={apagado}
-            className={apagado ? 'pointer-events-none opacity-30' : ''}
           />
 
           <ControlCodePanel
@@ -1000,13 +999,12 @@ function App() {
             onEditIp={abrirEditorPuertoEntrada}
             onEditIpValue={editarPuertoEntradaValor}
             onFormatoInvalido={() => setMensaje('Formato invalido. Use HEX de 1 a 4 digitos.')}
-            className={apagado ? 'pointer-events-none opacity-30' : ''}
           />
 
           
         </div>
 
-        <div className="min-w-0 w-full overflow-visible pb-1 scroll-internal md:min-h-0 md:h-full md:overflow-auto" style={{ minWidth: '0' }}>
+        <div className="min-w-0 w-full overflow-visible pb-1 scroll-internal md:min-h-0 md:h-full md:overflow-auto opacity-100" style={{ minWidth: '0' }}>
           <MemoryPanel
             inicio={inicio}
             fin={fin}

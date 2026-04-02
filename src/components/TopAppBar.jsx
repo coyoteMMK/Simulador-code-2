@@ -18,7 +18,7 @@ export default function TopAppBar({
           <div className="flex items-center gap-2 rounded-lg border border-cyan-500/15 bg-[#0b1628]/70 px-2 py-1.5">
             <span
               onClick={onToggleEncendido}
-              className="material-symbols-outlined cursor-pointer select-none text-xl text-red-500 transition-all hover:scale-110 hover:text-red-400"
+              className={`material-symbols-outlined cursor-pointer select-none text-xl text-red-500 transition-all hover:scale-110 hover:text-red-400 ${encendido ? 'animate-powerOn' : 'animate-powerOff'}`}
               style={{ userSelect: 'none', textShadow: '0 0 0 #000', transition: 'all 0.2s' }}
               onMouseEnter={e => e.currentTarget.style.textShadow = '0 0 8px #ff3b3b, 0 0 2px #fff'}
               onMouseLeave={e => e.currentTarget.style.textShadow = '0 0 0 #000'}
@@ -30,7 +30,7 @@ export default function TopAppBar({
               power_settings_new
             </span>
             <span
-              className={`inline-block h-3 w-3 rounded-full border border-slate-700 shadow ${encendido ? 'bg-lime-400 shadow-[0_0_8px_#beff0a]' : 'bg-slate-500'}`}
+              className={`inline-block h-3 w-3 rounded-full border border-slate-700 shadow transition-all ${encendido ? 'bg-lime-400 shadow-[0_0_8px_#beff0a] animate-ledPulse' : 'bg-slate-500'}`}
               title={encendido ? 'Encendido' : 'Apagado'}
               aria-label={encendido ? 'Encendido' : 'Apagado'}
             />
@@ -106,7 +106,7 @@ export default function TopAppBar({
           <div className="flex items-center gap-3 rounded-lg border border-cyan-500/15 bg-[#0b1628]/70 px-3 py-1.5">
             <span
               onClick={onToggleEncendido}
-              className="material-symbols-outlined cursor-pointer select-none text-2xl text-red-500 transition-all hover:scale-110 hover:text-red-400"
+              className={`material-symbols-outlined cursor-pointer select-none text-2xl text-red-500 transition-all hover:scale-110 hover:text-red-400 ${encendido ? 'animate-powerOn' : 'animate-powerOff'}`}
               style={{ userSelect: 'none', textShadow: '0 0 0 #000', transition: 'all 0.2s' }}
               onMouseEnter={e => e.currentTarget.style.textShadow = '0 0 8px #ff3b3b, 0 0 2px #fff'}
               onMouseLeave={e => e.currentTarget.style.textShadow = '0 0 0 #000'}
@@ -118,7 +118,7 @@ export default function TopAppBar({
               power_settings_new
             </span>
             <span
-              className={`ml-1 inline-block h-3 w-3 rounded-full border border-slate-700 shadow ${encendido ? 'bg-lime-400 shadow-[0_0_8px_#beff0a]' : 'bg-slate-500'}`}
+              className={`ml-1 inline-block h-3 w-3 rounded-full border border-slate-700 shadow transition-all ${encendido ? 'bg-lime-400 shadow-[0_0_8px_#beff0a] animate-ledPulse' : 'bg-slate-500'}`}
               title={encendido ? 'Encendido' : 'Apagado'}
               aria-label={encendido ? 'Encendido' : 'Apagado'}
             />
