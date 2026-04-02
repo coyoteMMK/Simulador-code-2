@@ -12,7 +12,7 @@ export default function TopAppBar({
   apagado
 }) {
   return (
-    <header className="fixed top-0 z-50 w-full border-b border-cyan-500/20 bg-[#070f1dcc] px-3 py-2 backdrop-blur-xl sm:px-4 lg:px-6">
+    <header className="fixed top-0 z-50 w-full border-b border-cyan-500/20 bg-[#070f1dcc] px-3 py-2 backdrop-blur-xl sm:px-4 lg:px-6 sm:py-0">
       <div className="sm:hidden">
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2 rounded-lg border border-cyan-500/15 bg-[#0b1628]/70 px-2 py-1.5">

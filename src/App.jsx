@@ -908,7 +908,8 @@ function App() {
   return (
 
     <main className="relative flex min-h-screen w-full flex-col overflow-y-auto overflow-x-hidden bg-[#030915] text-slate-100 md:h-screen md:overflow-hidden">
-      <div className="pointer-events-none absolute inset-0 opacity-70">
+      <div className="pointer-events-none absolute inset-0 opacity-80">
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(22,219,255,0.2)_2px,transparent_2px),linear-gradient(90deg,rgba(22,219,255,0.2)_2px,transparent_2px),linear-gradient(rgba(22,219,255,0.085)_1px,transparent_1px),linear-gradient(90deg,rgba(22,219,255,0.085)_1px,transparent_1px)] bg-[length:32px_32px,32px_32px,8px_8px,8px_8px]" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_10%_0%,rgba(27,168,255,0.16),transparent_35%),radial-gradient(circle_at_90%_100%,rgba(13,83,255,0.15),transparent_35%)]" />
         <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(10,20,36,0.35),rgba(3,8,16,0.85))]" />
       </div>
@@ -935,7 +936,7 @@ function App() {
         apagado={apagado}
       />
 
-      <div className="main-mobile-stack relative mt-28 sm:mt-16 grid md:min-h-0 md:flex-1 grid-cols-1 md:grid-cols-2 lg:grid-cols-[29fr_24fr_28fr_19fr] gap-4 overflow-visible md:overflow-hidden p-3 lg:gap-5 lg:p-5 w-full min-w-0 max-w-none">
+      <div className="main-mobile-stack relative mt-28 sm:mt-16 grid md:min-h-0 md:flex-1 grid-cols-1 md:grid-cols-2 lg:grid-cols-[29fr_24fr_28fr_19fr] gap-4 overflow-visible md:overflow-hidden px-3 pb-3 pt-2 lg:gap-5 lg:px-5 lg:pb-5 lg:pt-2 w-full min-w-0 max-w-none">
         {/* Intercambiadas las columnas de instrucciones y CPU control */}
         <div
           className="min-w-0 w-full flex flex-col gap-4 overflow-x-hidden overflow-y-visible pb-1 lg:gap-5 md:flex-1 md:min-h-0 md:overflow-y-auto"
